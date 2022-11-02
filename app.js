@@ -4,8 +4,9 @@ const configRoutes = require('./routes');
 
 app.use(express.json());
 
+app.use( express.static( __dirname + '/res/' ));
 configRoutes(app);
-
-app.listen(3000, () => {
-  console.log('Server running on: http://localhost:3000');
+app.listen(4000, () => {
+  console.log('Server running on: http://localhost:4000');
+  console.log('                   http://localhost:4000/index');
 });
