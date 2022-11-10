@@ -24,11 +24,12 @@
     padding: 100px;
     display: flex;
     flex-direction: row;
-    align-items: space-evenly;
+    align-items: center;
 }
 
 .pen {
     border: dashed purple thick;
+    margin: 2%;
     width: 50%;
     height: 100%;
     display: flex;
@@ -40,12 +41,13 @@
 
 .status {
     border: dashed blue thick;
+    margin: 2%;
     width: 50%;
     height: 100%;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding: 100px;
+    padding: 2%;
 }
 
 .buttonContainer {
@@ -76,11 +78,12 @@
 
     width: 15%;
     height: 20%;
-    animation-name: idle;
-    animation-duration: 2s;
+    animation: idle 1s infinite;
 }
 
 @keyframes idle{
     0% {background-color: red;}
-    100% {background-color: green;}
+    50% {background-color: green;}
+    100% {background-color: red;}
+    
 }
