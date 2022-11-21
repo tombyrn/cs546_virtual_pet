@@ -28,7 +28,6 @@ router.route('/login').post(async (req, res) => {
     try{
         await validateUsernamePassword(username, password) 
     } catch(e){
-        console.log('$$$', e)
         res.status(400).send(`<script>alert("${e}"); window.location.href = "/login"; </script>`);
         return
     }
@@ -37,10 +36,9 @@ router.route('/login').post(async (req, res) => {
     try{
         const user = await userData.checkUser(username, password)
 
-        // create session cookie if the user exists
+        // create express session if the user exists
         if(user.authenticatedUser){
-            req.session.user = {username}
-            req.session.id = user.userId
+            req.session.user = {username, id: user.userId}
             return res.redirect('/home')
         }
     } catch(e){}
@@ -62,20 +60,23 @@ router.route('/register').post(async (req, res) => {
     try{
         await validateUsernamePassword(username, password) 
     } catch(e){
-        console.log("```",e)
-        return res.send(`<script>alert("Username and/or Password Invalid"); window.location.href = "/register"; </script>`);
+        return res.send(`<script>alert("${e}"); window.location.href = "/register"; </script>`);
     }
 
     // create a user and send to login page
     try{
-        const createdUser = await userData.createUser(username, password);
-        console.log("createdUser", createdUser)
-        if(createdUser.insertedUser)
+        const user = await userData.createUser(username, password);
+
+        // create express session if user is successffully created
+        if(user.insertedUser){
+            req.session.user = {username, id: user.userId}
+
+            // take user to next stage of registration (creating a pet)
             return res.redirect('/register/create')
+        }
         else
             return res.status(500).send('<script>alert("Internal Server Error"); window.location.href = "/"; </script>')
     } catch(e){
-        console.log("~~~",e)
         return res.status(400).send(`<script>alert("Could not create user"); window.location.href = "/register"; </script>`);
     }
 })

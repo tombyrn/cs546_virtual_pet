@@ -9,26 +9,22 @@ router.route('/').get( async (req, res) => {
 
 // POST request to 'home/profile'
 router.route('/profile').post( async (req, res) => {
-    console.log('here')
     res.render('profile', {title: 'Profile'})
 })
 
 // POST request to 'home/createPet' 
 router.route('/createPet').post( async (req, res) => {
+    // if no design or name is specified throw error (todo: make more sophisticated error handling)
     if(!req.body.design)
         throw 'No design input chosen'
     if(!req.body.name)
         throw 'No name input chosen'
 
-    const pet = await petData.createPet(req.session.id, {name: req.body.name, design: req.body.design})
+    const pet = await petData.createPet(req.session.user.id, {name: req.body.name, design: req.body.design})
 
-    // DOESN'T WORK YET
-    // const status = await petData.givePetToUser(req.session.id, pet.petId)
+    const status = await petData.givePetToUser(req.session.user.id, pet.petId)
 
-    // if(!status.acknowledged || !status.modifiedCount)
-    //     throw 'Error: could not register pet'
-
-    res.redirect('/login')
+    res.redirect('/home')
 })
 
 module.exports = router
