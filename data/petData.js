@@ -4,12 +4,13 @@ const { ObjectId } = require('mongodb');
 const pets = require('../config/mongoCollections').pets
 const users = require('../config/mongoCollections').users
 
-// petProps should be an object of {name: string,  design: petProps.design}
+// petProps should be an object of {name: string,  design: number}
 const createPet = async (
     userId, petProps
 ) => {
     const petCollection = await pets();
 
+    // creates new pet in the database
     const dateCreated = Date.now();
     const petId = ObjectId();
     let status = await petCollection.insertOne({
@@ -32,9 +33,11 @@ const createPet = async (
         happyHitZero: 0
      })
 
+    // fails if error creating pet
     if (!status.acknowledged || !status.insertedId)
         throw 'Error: Could not add pet to database'
 
+    // returns object of {petId: ObjectId}
     return { petId }
 
 }
@@ -43,9 +46,14 @@ const givePetToUser = async (
     userId, petId
 ) => {
     const userCollection = await users()
-    console.log(userId)
-    const status = await userCollection.updateOne({_id: userId}, {$set: {"petId": petId}})
-    console.log(status)
+
+    // updates the user document to have a field called 'petId' matching the ObjectId of the newly created pet
+    const status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {"petId": petId}})
+
+    // fails if error adding petId to user
+    if (!status.acknowledged || !status.modifiedCount)
+        throw 'Error: Could not add pet to database'
+
     return status
 }
 
