@@ -6,13 +6,17 @@
 
             <div class="username-container">
                 <label for="usernameInput">Username:</label>
-                <input type="text" name="usernameInput" id="usernameInput" placeholder="Username">
+                <input type="text" name="usernameInput" id="usernameInput" placeholder="Username" value={{inputs.usernameInput}}>
+                <p id="usernameError">{{errors.username}}</p>
             </div>
 
             <div class="password-container">
                 <label for="passwordInput">Password:</label>
-                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password">
+                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password" value={{inputs.passwordInput}}>
+                <p id="passwordError">{{errors.password}}</p>
             </div>
+
+            <p id="otherError">{{otherError}}</p>
 
             <div class="button-container">
                 <button type="submit">Enter</button>

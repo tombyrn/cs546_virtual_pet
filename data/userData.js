@@ -1,27 +1,71 @@
 const users = require('../config/mongoCollections').users
 const pets = require('../config/mongoCollections').pets
 const bcrypt = require('bcrypt')
+const saltRounds = 10
 const {ObjectId} = require('mongodb');
-const validateUsernamePassword = require('../helpers').validateUsernamePassword
+const { validateName, validateEmail, validateUsername, validatePassword } = require('../helpers');
 
 // returns object of {insertedUser: boolean, userId: ObjectId}
 const createUser = async (
-    username, password
+    firstName, lastName, email, username, password
 ) => { 
-    // validates username and password
-    await validateUsernamePassword(username, password) 
-    username = username.trim().toLowerCase()
-    password = await bcrypt.hash(password.trim(),  10)
+    // Validation
+    const errors = {}
+    try {
+        firstName = validateName(firstName, 'First')
+    } catch (e) {
+        errors.firstName = e
+    }
+    try {
+        lastName = validateName(lastName, 'Last')
+    } catch (e) {
+        errors.lastName = e
+    }
+    try {
+        email = validateEmail(email)
+    } catch (e) {
+        errors.email = e
+    }
+    try {
+        username = validateUsername(username)
+    } catch (e) {
+        errors.username = e
+    }
+    try {
+        password = validatePassword(password)
+    } catch (e) {
+        errors.password = e
+    }
+    if (Object.keys(errors).length > 0) {
+        throw errors
+    }
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds)
 
     // create user in database and return if done successfully
     const userCollection = await users()
 
-    const attemptFind = await userCollection.findOne({username})
-    if(attemptFind)
-        throw 'Error: Duplicate usernames not allowed'
+    const existingUsername = await userCollection.findOne({username: username})
+    if(existingUsername)
+        throw 'Error: The provided username or email is already in use.'
+    const existingEmail = await userCollection.findOne({email: email})
+    if (existingEmail)
+        throw 'Error: The provided username or email is already in use.'
 
-    let userId = ObjectId()
-    const status = await userCollection.insertOne({_id: userId, username, password, points: 0, background: 0, hatsUnlocked: [0], backgroundsUnlocked: [0]})
+    const newUser = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        username: username, 
+        hashedPassword: hashedPassword,
+        petId: null,
+        points: 0,
+        background: 0,
+        hatsUnlocked: [],
+        backgroundsUnlocked: []
+    }
+
+    const status = await userCollection.insertOne(newUser)
 
     if (!status.acknowledged || !status.insertedId)
         throw 'Error: Could not add user to database'
@@ -34,9 +78,20 @@ const checkUser = async (
     username, password
 ) => {
     // validates username and password
-    await validateUsernamePassword(username, password) 
-    username = username.trim().toLowerCase()
-    password = password.trim()
+    const errors = {}
+    try {
+        username = validateUsername(username)
+    } catch (e) {
+        errors.username = e
+    }
+    try {
+        password = validatePassword(password)
+    } catch (e) {
+        errors.password = e
+    }
+    if (Object.keys(errors).length > 0) {
+        throw errors
+    }
 
     // find user in database and return if it exists
     const userCollection = await users()
