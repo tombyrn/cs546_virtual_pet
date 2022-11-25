@@ -1,8 +1,8 @@
 <div class="container">
     <div class="petContainer">
 
-        <div class="pen">
-            <canvas id="canvas"></canvas>
+        <div id="pen" class="pen">
+            {{!-- <canvas id="canvas"></canvas> --}}
                     {{!-- <div id="pet"></div> --}}
         </div>
 
@@ -10,11 +10,11 @@
             <label>Health</label>
             <progress id="healthBar" max="100">Health</progress>
             <label>Food</label>
-            <progress id="foodBar" max="100" >Food</progress>
+            <progress id="foodBar" max="100">Food</progress>
             <label>Happiness</label>
             <progress id="happinessBar" max="100">Happiness</progress>
             <label>Cleanliness</label>
-            <progress id="cleanlinessBar" max="100"®>Cleanliness</progress>
+            <progress id="cleanlinessBar" max="100">Cleanliness</progress>
         </div>
 
     </div>
@@ -30,4 +30,6 @@
         </div>
 
 </div>
-        <script src="/public/js/pet.js"></script>
+
+<script src="/public/js/two.min.js"></script>
+<script src="/public/js/pet.js"></script>
