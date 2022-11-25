@@ -139,7 +139,7 @@ router.route('/logout').get((req, res) => {
 
 // GET request to 'register/create' (made when user begins registration after the user enters username and password)
 router.route('/register/create').get((req, res) => {
-    res.render('create', {title: 'Create'})
+    res.render('create', {title: 'Create a Pet'})
 })
 
 
