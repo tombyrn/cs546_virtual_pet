@@ -15,7 +15,7 @@ const createPet = async (
     const petId = ObjectId();
     let status = await petCollection.insertOne({
         _id: petId, 
-        userId: userId,
+        userId: ObjectId(userId),
         name: petProps.name, 
         design: petProps.design, 
         hat: 0, 
@@ -57,4 +57,25 @@ const givePetToUser = async (
     return status
 }
 
-module.exports = {createPet, givePetToUser}
+const getPetAttributes = async (
+    userId
+) => {
+    const petCollection = await pets()
+
+    const projection = {
+        _id: 1,
+        userId: 1,
+        name: 1,
+        design: 1,
+        hat: 1,
+        alive: 1,
+        food: 1,
+        cleanliness: 1,
+        happiness: 1,
+        rest: 1
+    }
+    const pet = await petCollection.findOne({userId: userId}, projection)
+    return pet
+}
+
+module.exports = {createPet, givePetToUser, getPetAttributes}

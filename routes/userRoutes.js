@@ -39,6 +39,7 @@ router.route('/login').post(async (req, res) => {
         // create express session if the user exists
         if(user.authenticatedUser){
             req.session.user = {username, id: user.userId}
+            req.session.pet = await petData.getPetAttributes(user.userId)
             return res.redirect('/home')
         }
     } catch(e){}
@@ -70,6 +71,7 @@ router.route('/register').post(async (req, res) => {
         // create express session if user is successffully created
         if(user.insertedUser){
             req.session.user = {username, id: user.userId}
+            req.session.pet = await petData.getPetAttributes(user.userId)
 
             // take user to next stage of registration (creating a pet)
             return res.redirect('/register/create')
@@ -89,7 +91,7 @@ router.route('/logout').get((req, res) => {
 
 // GET request to 'register/create' (made when user begins registration after the user enters username and password)
 router.route('/register/create').get((req, res) => {
-    res.render('create', {title: 'Create'})
+    res.render('create', {title: 'Create', style:'/public/css/create.css'})
 })
 
 

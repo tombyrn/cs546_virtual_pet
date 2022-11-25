@@ -1,4 +1,5 @@
 const users = require('../config/mongoCollections').users
+const pets = require('../config/mongoCollections').pets
 const bcrypt = require('bcrypt')
 const {ObjectId} = require('mongodb');
 const validateUsernamePassword = require('../helpers').validateUsernamePassword
@@ -29,7 +30,9 @@ const createUser = async (
 };
 
 // returns object of {authenticatedUser: boolean, userId: ObjectId}
-const checkUser = async (username, password) => {
+const checkUser = async (
+    username, password
+) => {
     // validates username and password
     await validateUsernamePassword(username, password) 
     username = username.trim().toLowerCase()
@@ -50,5 +53,18 @@ const checkUser = async (username, password) => {
     else
         throw 'Error: Either the username or password is invalid'
 };
+
+const createPetSession = async (
+    userId
+) => {
+    const userCollection = await users()
+
+    const user = await userCollection.findOne({_id: userId})
+    
+
+    const petCollection = await pets()
+
+
+}
 
 module.exports = {createUser, checkUser};
