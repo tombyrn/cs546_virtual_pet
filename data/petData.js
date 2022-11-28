@@ -74,7 +74,7 @@ const getPetAttributes = async (
         happiness: 1,
         rest: 1
     }
-    const pet = await petCollection.findOne({userId: userId}, projection)
+    const pet = await petCollection.findOne({userId: ObjectId(userId)}, projection)
     return pet
 }
 

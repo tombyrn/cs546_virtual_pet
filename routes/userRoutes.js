@@ -1,6 +1,8 @@
 const router = require('express').Router()
 
 const userData = require('../data/').users
+const petData = require('../data/').pets
+
 const {validateName, validateEmail, validateUsername, validatePassword} = require('../helpers')
 
 // GET request to '/'

@@ -48,7 +48,7 @@ router.route('/createPet').post( async (req, res) => {
     const pet = await petData.createPet(req.session.user.id, {name: req.body.name, design: req.body.design})
 
     const status = await petData.givePetToUser(req.session.user.id, pet.petId)
-
+    req.session.pet = await petData.getPetAttributes(req.session.user.id)
     res.redirect('/home')
 })
 
