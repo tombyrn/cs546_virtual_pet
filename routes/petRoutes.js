@@ -2,11 +2,13 @@ const router = require('express').Router()
 const userCollection = require('../config/mongoCollections').users
 const petData = require('../data').pets
 
-router.use('/',  (req, res, next) => {
-    if(!req.session.user || !req.session.pet)
-        res.redirect('/login')
-    next()
-})
+router.use('/', (req, res, next) => {
+    if (!req.session.user /*|| !req.session.pet*/) {
+        return res.status(403).redirect('/login');
+    } else {
+        next();
+    }
+});
 
 // GET request to 'home'
 router.route('/').get( async (req, res) => {

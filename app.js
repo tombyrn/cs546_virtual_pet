@@ -32,14 +32,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/home', (req, res, next) => {
-    if (!req.session.user) {
-        res.status(403).redirect('/login');
-    } else {
-        next();
-    }
-});
-
 configRoutes(app);
 
 app.listen(4000, () => {
