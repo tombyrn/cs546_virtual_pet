@@ -20,10 +20,25 @@ app.use('/public', express.static(__dirname + '/public'));
 app.engine('handlebars', exphbs.engine({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
-app.use('/', (req, res, next) => {
-    console.log('[' + new Date().toUTCString() + ']: ' + req.method + ' ' + req.originalUrl)
-    next()
-})
+app.use((req, res, next) => {
+    const timestamp = new Date().toUTCString();
+    const method = req.method;
+    const route = req.originalUrl;
+    let authenticated = 'Non-Authenticated User';
+    if (req.session.user){
+        authenticated = 'Authenticated User';
+    }
+    console.log(`[${timestamp}]: ${method} ${route} (${authenticated})`);
+    next();
+});
+
+app.use('/home', (req, res, next) => {
+    if (!req.session.user) {
+        res.status(403).redirect('/login');
+    } else {
+        next();
+    }
+});
 
 configRoutes(app);
 

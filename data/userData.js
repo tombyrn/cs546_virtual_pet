@@ -99,7 +99,7 @@ const checkUser = async (username, password) => {
         throw 'Error: Either the username or password is invalid'
   
     // make sure the password matches the hashed password in the database
-    const match = await bcrypt.compare(password, user.password)
+    const match = await bcrypt.compare(password, user.hashedPassword)
     if(match)
         return {authenticatedUser: true, userId: user._id}
     else
