@@ -1,97 +1,152 @@
 const router = require('express').Router()
 
 const userData = require('../data/').users
-const petData = require('../data/').pets
-const validateUsernamePassword = require('../helpers').validateUsernamePassword
+const {validateName, validateEmail, validateUsername, validatePassword} = require('../helpers')
 
 // GET request to '/'
 router.route('/').get((req, res) => {
     if(req.session.user){
-        res.redirect('/home')
+        return res.redirect('/home')
     }
     else{
-        res.redirect('/login')
+        return res.redirect('/login')
     }
 })
 
 // GET request to 'login'
 router.route('/login').get(async (req, res) => {
-    res.render('login', {title: 'Login', style: "/public/css/login.css"})
+    if (req.session.user){
+        return res.redirect('/home')
+    } else {
+        return res.render('login', {title: 'Login', style: "/public/css/login.css"})
+    }
 })
 
 // POST request to 'login'
 router.route('/login').post(async (req, res) => {
-    // check if the password is valid
-    let username = req.body.usernameInput.trim().toLowerCase()
-    let password = req.body.passwordInput.trim()
+    let username = req.body.usernameInput
+    let password = req.body.passwordInput
 
-    try{
-        await validateUsernamePassword(username, password) 
-    } catch(e){
-        res.status(400).send(`<script>alert("${e}"); window.location.href = "/login"; </script>`);
-        return
+    // Validation
+    const errors = {}
+    try {
+        username = validateUsername(username)
+    } catch (e) {
+        errors.username = e
+    }
+    try {
+        password = validatePassword(password)
+    } catch (e) {
+        errors.password = e
+    }
+    if (Object.keys(errors).length > 0) {
+        return res.status(400).render('login', {title: 'Login', style: "/public/css/login.css", errors: errors, inputs: req.body})
     }
 
-    // check if user exists and send to home page (main page with pet pen, statuses and buttons)
+    // check if user is valid
+    let user = {}
     try{
-        const user = await userData.checkUser(username, password)
-
-        // create express session if the user exists
-        if(user.authenticatedUser){
-            req.session.user = {username, id: user.userId}
-            req.session.pet = await petData.getPetAttributes(user.userId)
-            return res.redirect('/home')
+        user = await userData.checkUser(username, password)
+    } catch (e) {
+        if (e === 'Error: Either the username or password is invalid'){
+            return res.status(400).render('login', {title: 'Login', style: "/public/css/login.css", otherError: e, inputs: req.body})
+        } else {
+            // Something else happened
+            return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: req.body})
         }
-    } catch(e){}
-    return res.status(400).send('<script>alert("Invalid Username or Password"); window.location.href = "/login"; </script>');
+    }
+
+    // create express session if the user exists, and send to home page
+    if(user.authenticatedUser){
+        req.session.user = {username, id: user.userId}
+        req.session.pet = await petData.getPetAttributes(user.userId)
+        return res.redirect('/home')
+    }
+    
+    // checkUser did not return, but did not throw. Not expected to trigger
+    return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: req.body})
 })
 
 
 // GET request to 'register'
 router.route('/register').get(async (req, res) => {
-    res.render('register', {title: 'Register an Account', style: 'public/css/login.css'})
+    if (req.session.user){
+        return res.redirect('/home')
+    } else {
+        return res.render('register', {title: 'Register an Account', style: 'public/css/login.css'})
+    }
 })
 
 // POST request to 'register'
 router.route('/register').post(async (req, res) => {
     // check if the password is valid
-    let username = req.body.usernameInput.trim().toLowerCase()
-    let password = req.body.passwordInput.trim()
+    let firstName = req.body.firstNameInput
+    let lastName = req.body.lastNameInput
+    let email = req.body.emailInput
+    let username = req.body.usernameInput
+    let password = req.body.passwordInput
 
-    try{
-        await validateUsernamePassword(username, password) 
-    } catch(e){
-        return res.send(`<script>alert("${e}"); window.location.href = "/register"; </script>`);
+    // Validation
+    const errors = {}
+    try {
+        firstName = validateName(firstName, 'First')
+    } catch (e) {
+        errors.firstName = e
+    }
+    try {
+        lastName = validateName(lastName, 'Last')
+    } catch (e) {
+        errors.lastName = e
+    }
+    try {
+        email = validateEmail(email)
+    } catch (e) {
+        errors.email = e
+    }
+    try {
+        username = validateUsername(username)
+    } catch (e) {
+        errors.username = e
+    }
+    try {
+        password = validatePassword(password)
+    } catch (e) {
+        errors.password = e
+    }
+    if (Object.keys(errors).length > 0) {
+        return res.status(400).render('register', {title: 'Register an Account', style: "/public/css/login.css", errors: errors, inputs: req.body})
     }
 
-    // create a user and send to login page
+    let user = {}
     try{
-        const user = await userData.createUser(username, password);
-
-        // create express session if user is successffully created
-        if(user.insertedUser){
-            req.session.user = {username, id: user.userId}
-            req.session.pet = await petData.getPetAttributes(user.userId)
-
-            // take user to next stage of registration (creating a pet)
-            return res.redirect('/register/create')
+        user = await userData.createUser(firstName, lastName, email, username, password)
+    } catch (e) {
+        if (e === 'Error: The provided username or email is already in use.'){
+            return res.status(400).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: e, inputs: req.body})
+        } else {
+            // Something else happened
+            return res.status(500).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: req.body})
         }
-        else
-            return res.status(500).send('<script>alert("Internal Server Error"); window.location.href = "/"; </script>')
-    } catch(e){
-        return res.status(400).send(`<script>alert("Could not create user"); window.location.href = "/register"; </script>`);
     }
+
+    // create express session if the user is created, and send to pet creation
+    if(user.insertedUser){
+        req.session.user = {username, id: user.userId}
+        return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
+    }
+    
+    // createUser did not return, but did not throw. Not expected to trigger
+    return res.status(500).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: req.body})
 })
 
 // GET request to 'logout'
 router.route('/logout').get((req, res) => {
-    req.session.destroy();
-    res.render('logout', {title: 'Logout'})
-})
-
-// GET request to 'register/create' (made when user begins registration after the user enters username and password)
-router.route('/register/create').get((req, res) => {
-    res.render('create', {title: 'Create', style:'/public/css/create.css'})
+    if (req.session.user){
+        req.session.destroy();
+        return res.render('logout', {title: 'Logout'})
+    } else {
+        return res.redirect('/login')
+    }
 })
 
 

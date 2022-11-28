@@ -5,15 +5,39 @@
     <div class="form-container">
         <form id="login-form" method="POST" action="/register">
 
-            <div class="username-container">
-                <label for="usernameInput">Username:</label>
-                <input type="text" name="usernameInput" id="usernameInput" placeholder="Username">
+            <div class="input-container">
+                <label for="firstNameInput">First Name:</label>
+                <input type="text" name="firstNameInput" id="firstNameInput" placeholder="First Name" value={{inputs.firstNameInput}}>
             </div>
+            <p class="error" id="firstNameError">{{errors.firstName}}</p>
 
-            <div class="password-container">
-                <label for="passwordInput">Password:</label>
-                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password">
+            <div class="input-container">
+                <label for="lastNameInput">Last Name:</label>
+                <input type="text" name="lastNameInput" id="lastNameInput" placeholder="Last Name" value={{inputs.lastNameInput}}>
             </div>
+            <p class="error" id="lastNameError">{{errors.lastName}}</p>
+
+            <div class="input-container">
+                <label for="emailInput">Email Address:</label>
+                <input type="text" name="emailInput" id="emailInput" placeholder="Email" value={{inputs.emailInput}}>
+            </div>
+            <p class="error" id="emailError">{{errors.email}}</p>
+
+            <div class="input-container">
+                <label for="usernameInput">Username:</label>
+                <input type="text" name="usernameInput" id="usernameInput" placeholder="Username" value={{inputs.usernameInput}}>
+            </div>
+            <p class="error" id="usernameError">{{errors.username}}</p>
+
+            <div class="input-container">
+                <label for="passwordInput">Password:</label>
+                <input type="password" name="passwordInput" id="passwordInput" placeholder="Password" value={{inputs.passwordInput}}>
+            </div>
+            <p class="error" id="passwordError">{{errors.password}}</p>
+
+            {{#if otherError}}
+                <p class="error" id="otherError">{{otherError}}</p>
+            {{/if}}
 
             <div class="button-container">
                 <button type="submit">Enter</button>
