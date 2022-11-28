@@ -4,19 +4,21 @@
     <div class="form-container">
         <form id="login-form" method="POST" action="/login">
 
-            <div class="username-container">
+            <div class="input-container">
                 <label for="usernameInput">Username:</label>
                 <input type="text" name="usernameInput" id="usernameInput" placeholder="Username" value={{inputs.usernameInput}}>
-                <p id="usernameError">{{errors.username}}</p>
             </div>
+            <p class="error" id="usernameError">{{errors.username}}</p>
 
-            <div class="password-container">
+            <div class="input-container">
                 <label for="passwordInput">Password:</label>
                 <input type="password" name="passwordInput" id="passwordInput" placeholder="Password" value={{inputs.passwordInput}}>
-                <p id="passwordError">{{errors.password}}</p>
             </div>
+            <p class="error" id="passwordError">{{errors.password}}</p>
 
-            <p id="otherError">{{otherError}}</p>
+            {{#if otherError}}
+                <p class="error" id="otherError">{{otherError}}</p>
+            {{/if}}
 
             <div class="button-container">
                 <button type="submit">Enter</button>
