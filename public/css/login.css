@@ -17,6 +17,8 @@
 }
 
 .input-container, .button-container {
+    font-size: 20px;
+
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -42,4 +44,30 @@ label {
 .error {
     text-align: center;
     margin: 0rem;
+}
+
+a{
+    font-size: 20px;
+    padding-top: 50px;
+}
+
+a:link {
+    color: seagreen;
+    text-decoration-line: none;
+}
+
+a:hover {
+    color: lawngreen;
+    text-decoration-line: none;
+}
+
+a:visited {
+    color:darkgreen;
+    text-decoration-line: none;
+}
+
+h1{
+    font-size: 70px;
+    font-style: italic;
+    color:seagreen;
 }

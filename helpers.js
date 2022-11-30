@@ -1,4 +1,5 @@
 function validateName(name, prefix){
+    if(!name){throw `Error: ${prefix} name must be provided.`}
     if (typeof name !== 'string'){
         throw `Error: ${prefix} name must be a string`
     }
@@ -14,6 +15,7 @@ function validateName(name, prefix){
 }
 
 function validateEmail(email){
+    if(!email){throw `Error: Email must be provided.`}
     if (typeof email !== 'string'){
         throw 'Error: Email must be a string.'
     }
@@ -29,32 +31,34 @@ function validateEmail(email){
 }
 
 function validateUsername(username) {
+    if(!username){throw `Error: Username name must be provided.`}
     if (typeof username !== 'string'){
-        throw 'Error: username must be a string.'
+        throw 'Error: Username must be a string.'
     }
     username = username.trim().toLowerCase();
     if (username.length < 4){
-        throw 'Error: username must be at least four characters (not counting whitespace).'
+        throw 'Error: Username must be at least four characters (not counting whitespace).'
     }
     if (/[^a-z0-9]/.test(username)){
-        throw 'Error: username may only contain alphanumeric characters.'
+        throw 'Error: Username may only contain alphanumeric characters.'
     }
 
     return username
 }
 
 function validatePassword(password) {
+    if(!password){throw `Error: password name must be provided.`}
     if (typeof password !== 'string'){
-        throw 'Error: password must be a string.';
+        throw 'Error: Password must be a string.';
     }
     if (password.length < 6){
-        throw 'Error: password must be at least six characters (not counting whitespace).';
+        throw 'Error: Password must be at least six characters (not counting whitespace).';
     }
     if (/\s/.test(password)){
-        throw 'Error: password may not contain whitespace.'
+        throw 'Error: Password may not contain whitespace.'
     }
     if (!/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)){
-        throw 'Error: password must contain at least one uppercase, \
+        throw 'Error: Password must contain at least one uppercase, \
         one numeric, and one special character.'
     }
 
