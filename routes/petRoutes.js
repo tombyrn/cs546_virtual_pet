@@ -18,6 +18,21 @@ router.route('/').get( async (req, res) => {
     })
 })
 
+// POST request to 'home/play'
+router.route('/play').post((req, res) => {
+    res.render('chooseGame', {title: 'Choose Game', style: '/public/css/chooseGame.css'})
+})
+
+// POST request to 'home/clean'
+router.route('/clean').post((req, res) => {
+    res.render('clean', {title: 'Clean'})
+})
+
+// POST request to 'home/store'
+router.route('/store').post((req, res) => {
+    res.render('store', {title: 'Store'})
+})
+
 // POST request to 'home/profile'
 router.route('/profile').post( async (req, res) => {
     const pet = req.session.pet
@@ -50,6 +65,16 @@ router.route('/createPet').post( async (req, res) => {
     const status = await petData.givePetToUser(req.session.user.id, pet.petId)
     req.session.pet = await petData.getPetAttributes(req.session.user.id)
     res.redirect('/home')
+})
+
+// GET request to 'home/play/simon'
+router.route('/play/simon').get((req, res) => {
+    res.render('simon', {title: "Simon"})
+})
+
+// GET request to 'home/play/hangman'
+router.route('/play/hangman').get((req, res) => {
+    res.render('hangman', {title: "Hangman"})
 })
 
 module.exports = router
