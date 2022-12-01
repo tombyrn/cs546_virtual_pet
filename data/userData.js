@@ -137,6 +137,8 @@ const addPoints = async(
     if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
 
     return await userCollection.findOne({username});
+
+    //can change what we return
 }
 
 const updateUserInfo = async(
@@ -152,12 +154,26 @@ const updateUserInfo = async(
     username = validateUsername(username)
     password = validatePassword(password)
     
-    if(!points){throw "Error: Points must be provided."}
-    if(typeof points != "number" || !Number.isInteger(points)){throw "Error: Points must be an int number"}
+    const userCollection = await users()
+  
+    const user = await userCollection.findOne({username})
+  
+    if(!user){throw 'Error: User not found'}
 
-    // need to finished
+    const update = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        username: username,
+        password:  password
+    }
 
+    const updateInfo = await userCollection.updateOne({ _id: ObjectId(userId) },{ $set: update });
+    if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
+
+    return await userCollection.findOne({username});
     
+    //can change what we return
 
 }
 
@@ -170,4 +186,4 @@ const updateUserInfo = async(
 //     const petCollection = await pets()
 // }
 
-module.exports = {createUser, checkUser, addPoints};
+module.exports = {createUser, checkUser, addPoints, updateUserInfo};
