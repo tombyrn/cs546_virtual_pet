@@ -109,17 +109,81 @@ const checkUser = async (
         throw 'Error: Either the username or password is invalid'
 };
 
-const createPetSession = async (
-    userId
+const addPoints = async(
+    userId, username, points
 ) => {
+    if(typeof userId !== 'string' || userId.trim().length === 0){throw "Error: Must provide a valid id"}
+    userId = userId.trim();
+    if(!ObjectId.isValid(userId)){throw "Error: Invalid object id"}
+
+    username = validateUsername(username);
+
+    if(!points){throw "Error: Points must be provided."}
+    if(typeof points != "number" || !Number.isInteger(points)){throw "Error: Points must be an int number"}
+
     const userCollection = await users()
+  
+    const user = await userCollection.findOne({username})
+  
+    if(!user){throw 'Error: User not found'}
 
-    const user = await userCollection.findOne({_id: userId})
+    points = user.points + points;
+
+    const update = {
+        points: points
+    }
+
+    const updateInfo = await userCollection.updateOne({ _id: ObjectId(userId) },{ $set: update });
+    if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
+
+    return await userCollection.findOne({username});
+
+    //can change what we return
+}
+
+const updateUserInfo = async(
+    userId, firstName, lastName, email, username, password
+) => {
+    if(typeof userId !== 'string' || userId.trim().length === 0){throw "Error: Must provide a valid id"}
+    userId = userId.trim();
+    if(!ObjectId.isValid(userId)){throw "Error: Invalid object id"}
+
+    firstName = validateName(firstName, 'First')
+    lastName = validateName(lastName, 'Last')
+    email = validateEmail(email)
+    username = validateUsername(username)
+    password = validatePassword(password)
     
+    const userCollection = await users()
+  
+    const user = await userCollection.findOne({username})
+  
+    if(!user){throw 'Error: User not found'}
 
-    const petCollection = await pets()
+    const update = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        username: username,
+        password:  password
+    }
 
+    const updateInfo = await userCollection.updateOne({ _id: ObjectId(userId) },{ $set: update });
+    if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
+
+    return await userCollection.findOne({username});
+    
+    //can change what we return
 
 }
 
-module.exports = {createUser, checkUser};
+
+// const createPetSession = async (
+//     userId
+// ) => {
+//     const userCollection = await users()
+//     const user = await userCollection.findOne({_id: userId})
+//     const petCollection = await pets()
+// }
+
+module.exports = {createUser, checkUser, addPoints, updateUserInfo};

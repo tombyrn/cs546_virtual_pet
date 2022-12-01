@@ -11,7 +11,8 @@ router.route('/').get((req, res) => {
         return res.redirect('/home')
     }
     else{
-        return res.redirect('/login')
+        return res.render('landing', {title: 'Dev-agotchi', style: "/public/css/landing.css"})
+        //return res.redirect('/login')
     }
 })
 
