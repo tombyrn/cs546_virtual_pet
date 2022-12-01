@@ -20,7 +20,15 @@ router.route('/').get( async (req, res) => {
 
 // POST request to 'home/profile'
 router.route('/profile').post( async (req, res) => {
+    
     const pet = req.session.pet
+
+    //presenting date on the screen
+    
+    pet.lastFed = new Date(Number(pet.lastFed)).toDateString();
+    pet.lastCleaned = new Date(Number(pet.lastCleaned)).toDateString();
+    pet.lastPlayed = new Date(Number(pet.lastPlayed)).toDateString();
+
     res.render('profile', {
         title: 'Profile', 
         style: '/public/css/profile.css',

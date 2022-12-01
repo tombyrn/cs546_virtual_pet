@@ -139,8 +139,8 @@ const addPoints = async(
     return await userCollection.findOne({username});
 }
 
-const updateUser = async(
-    userId, firstName, lastName, email, username, password, points, background, hatsUnlocked, backgroundsUnlocked
+const updateUserInfo = async(
+    userId, firstName, lastName, email, username, password
 ) => {
     if(typeof userId !== 'string' || userId.trim().length === 0){throw "Error: Must provide a valid id"}
     userId = userId.trim();
@@ -156,6 +156,8 @@ const updateUser = async(
     if(typeof points != "number" || !Number.isInteger(points)){throw "Error: Points must be an int number"}
 
     // need to finished
+
+    
 
 }
 
