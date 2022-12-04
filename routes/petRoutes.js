@@ -48,6 +48,7 @@ router.route('/profile').post( async (req, res) => {
         title: 'Profile', 
         style: '/public/css/profile.css',
         name: pet.name,
+        health: pet.health, 
         food: pet.food, 
         cleanliness: pet.cleanliness,
         happiness: pet.happiness,
@@ -85,4 +86,9 @@ router.route('/play/hangman').get((req, res) => {
     res.render('hangman', {title: "Hangman"})
 })
 
+router.route('/getPetInfo').get((req, res) => {
+    res.send({
+        pet: req.session.pet
+    })
+})
 module.exports = router
