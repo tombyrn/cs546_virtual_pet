@@ -1,7 +1,37 @@
-<h1>Store Page</h1>
+<div class="container">
+    <h1>Store Page</h1>
 
-<form method="get">
-    <button id="back" formaction="/home">
-        back
-    </button>
-</form>
+    <form action="get">
+        <div class="itemContainer">
+
+            <div class="hatContainer">
+                <label for="hat1">Hat 1</label>
+                <button id="hat1" class="hat" formaction="/home/store/hat1"></button>
+
+                <label for="hat2">Hat 2</label>
+                <button id="hat2" class="hat" formaction="/home/store/hat2"></button>
+
+                <label for="hat3">Hat 3</label>
+                <button id="hat3" class="hat"  formaction="/home/store/hat3"></button>
+
+            </div>
+
+            <div class="bgContainer">
+                <label for="bg1">Background 1</label>
+                <button id="bg1" class="bg" formaction="/home/store/bg1"></button>
+
+                <label for="bg2">Background 2</label>
+                <button id="bg2" class="bg" formaction="/home/store/bg2"></button>
+
+                <label for="bg3">Background 3</label>
+                <button id="bg3" class="bg" formaction="/home/store/bg3"></button>
+            </div>
+            </form>
+
+        </div>
+
+        <button id="back" formaction="/home">
+                back
+        </button>
+    </form>
+</div>
