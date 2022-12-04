@@ -20,6 +20,7 @@ const createPet = async (
         design: petProps.design, 
         hat: 0, 
         alive: true,
+        health: 100,
         food: 100,
         cleanliness: 100,
         happiness: 100,
@@ -62,19 +63,19 @@ const getPetAttributes = async (
 ) => {
     const petCollection = await pets()
 
-    const projection = {
-        _id: 1,
-        userId: 1,
-        name: 1,
-        design: 1,
-        hat: 1,
-        alive: 1,
-        food: 1,
-        cleanliness: 1,
-        happiness: 1,
-        rest: 1
-    }
-    const pet = await petCollection.findOne({userId: ObjectId(userId)}, projection)
+    // const projection = {
+    //     _id: 1,
+    //     userId: 1,
+    //     name: 1,
+    //     design: 1,
+    //     hat: 1,
+    //     alive: 1,
+    //     food: 1,
+    //     cleanliness: 1,
+    //     happiness: 1,
+    //     rest: 1
+    // }
+    const pet = await petCollection.findOne({userId: ObjectId(userId)})
     return pet
 }
 

@@ -2,8 +2,7 @@
     <div class="petContainer">
 
         <div id="pen" class="pen">
-            {{!-- <canvas id="canvas"></canvas> --}}
-                    {{!-- <div id="pet"></div> --}}
+            {{!-- two.js creates a canvas in this div --}}
         </div>
 
         <div class="status">
@@ -19,16 +18,16 @@
 
     </div>
 
-
-            <form class="buttonContainer" method="post">
-                <button id="profileButton" type="submit" formaction="/home/profile">profile</button>
-                <button id="feedButton" type="button" formaction=>feed</button>
-                <button id="playButton" type="submit" formaction="/home/play">play</button>
-                <button id="cleanButton" type="submit" formaction="/home/clean">clean</button>
-                <button id="storeButton" type="submit" formaction="/home/store">store</button>
-            </form>
+    <form class="buttonContainer" method="post">
+        <button id="profileButton" type="submit" formaction="/home/profile">profile</button>
+        <button id="feedButton" type="button" formaction=>feed</button>
+        <button id="playButton" type="submit" formaction="/home/play">play</button>
+        <button id="cleanButton" type="submit" formaction="/home/clean">clean</button>
+        <button id="storeButton" type="submit" formaction="/home/store">store</button>
+    </form>
 
 </div>
 
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 <script src="/public/js/two.min.js"></script>
 <script src="/public/js/pet.js"></script>
