@@ -19,22 +19,22 @@ router.route('/').get( async (req, res) => {
 })
 
 // POST request to 'home/play'
-router.route('/play').post((req, res) => {
+router.route('/play').get((req, res) => {
     res.render('chooseGame', {title: 'Choose Game', style: '/public/css/chooseGame.css'})
 })
 
 // POST request to 'home/clean'
-router.route('/clean').post((req, res) => {
+router.route('/clean').get((req, res) => {
     res.render('clean', {title: 'Clean'})
 })
 
 // POST request to 'home/store'
-router.route('/store').post((req, res) => {
-    res.render('store', {title: 'Store'})
+router.route('/store').get((req, res) => {
+    res.render('store', {title: 'Store', style: '/public/css/store.css'})
 })
 
 // POST request to 'home/profile'
-router.route('/profile').post( async (req, res) => {
+router.route('/profile').get( async (req, res) => {
     
     const pet = req.session.pet
 
@@ -56,7 +56,7 @@ router.route('/profile').post( async (req, res) => {
         lastFed: pet.lastFed,
         lastCleaned: pet.lastCleaned,
         lastPlayed: pet.lastPlayed,
-        hat: pet.hat,
+        hat: pet.hat === "0" ? "none" : pet.hat,
         background: pet.background
     })
 })
@@ -91,4 +91,9 @@ router.route('/getPetInfo').get((req, res) => {
         pet: req.session.pet
     })
 })
+
+router.use('/store/:id', (req, res) => {
+    res.render('storeItem', {title: req.params.id})
+})
+
 module.exports = router

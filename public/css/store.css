@@ -1,0 +1,60 @@
+* {
+    padding: 0%;
+    margin: 0%;
+    width: 100%;
+    height: 100%;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.container {
+    border: solid black thick;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    border: green dashed;
+    width: 100%;
+    height: 10%;
+}
+
+.itemContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.hatContainer, .bgContainer {
+    width: 50%;
+    height: 80%;
+    border:  dodgerblue dashed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.hat, .bg, label {
+    width: 20%;
+    height: 10%;
+}
+
+#returnForm {
+    border: red dashed;
+    width: 100%;
+    height: 10%;
+}
+
+form {
+    display: inherit;
+    flex-direction: inherit;
+}
+
+#back {
+    margin: 1%;
+    width: 10%;
+    height: 10%;
+}
