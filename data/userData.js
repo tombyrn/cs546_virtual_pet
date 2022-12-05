@@ -104,7 +104,14 @@ const checkUser = async (
     // make sure the password matches the hashed password in the database
     const match = await bcrypt.compare(password, user.hashedPassword)
     if(match)
-        return {authenticatedUser: true, userId: user._id}
+        return {
+            authenticatedUser: true, 
+            userId: user._id, 
+            points: user.points,
+            background: user.background, 
+            hatsUnlocked: user.hatsUnlocked, 
+            backgroundsUnlocked: user.backgroundsUnlocked
+        }
     else
         throw 'Error: Either the username or password is invalid'
 };

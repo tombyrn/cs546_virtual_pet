@@ -58,10 +58,17 @@ router.route('/login').post(async (req, res) => {
             return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: req.body})
         }
     }
-
+    
     // create express session if the user exists, and send to home page
     if(user.authenticatedUser){
-        req.session.user = {username, id: user.userId}
+        req.session.user = {
+            username, 
+            id: user.userId, 
+            points: user.points, 
+            background: user.background, 
+            hatsUnlocked: user.hatsUnlocked, 
+            backgroundsUnlocked: user.backgroundsUnlocked
+        }
         req.session.pet = await petData.getPetAttributes(user.userId)
         return res.redirect('/home')
     }
