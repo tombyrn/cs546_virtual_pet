@@ -93,7 +93,37 @@ router.route('/getPetInfo').get((req, res) => {
 })
 
 router.use('/store/:id', (req, res) => {
-    res.render('storeItem', {title: req.params.id})
+    let title, price, picture //todo picture of hat or background
+    switch (req.params.id) {
+        case "hat1":
+            title = "Hat 1"
+            price = 40
+            break;
+        case "hat2":
+            title = "Hat 2"
+            price = 80
+            break;
+        case "hat3":
+            title = "Hat 3"
+            price = 200
+            break;
+        case "bg1":
+            title = "Background 1"
+            price = 200
+            break;
+        case "bg2":
+            title = "Background 2"
+            price = 200
+            break;
+        case "bg3":
+            title = "Background 3"
+            price = 500
+            break;
+    
+        default:
+            break;
+    }
+    res.render('storeItem', {title, price, points: req.session.user.points})
 })
 
 module.exports = router
