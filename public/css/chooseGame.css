@@ -13,13 +13,13 @@
     align-items: center;
 }
 
-#game1 {
+#simon {
     margin: 5%;
     width: 100px;
     height: 100px;
     border: dodgerblue dashed;
 }
-#game2 {
+#hangman {
     margin: 5%;
     width: 100px;
     height: 100px;

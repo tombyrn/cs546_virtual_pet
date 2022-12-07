@@ -1,7 +1,12 @@
 <h1>Hangman</h1>
 
-<form method="get">
-    <button id="back" formaction="/home">
-        back
-    </button>
-</form>
+<button id="back">
+    back
+</button>
+
+<script>
+    backButton = document.getElementById("back")
+    backButton.onclick = () => {
+        window.location.replace('/home')
+    }
+</script>

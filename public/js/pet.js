@@ -2,10 +2,13 @@ const healthBar = document.getElementById("healthBar")
 const foodBar = document.getElementById("foodBar")
 const happinessBar = document.getElementById("happinessBar")
 const cleanlinessBar = document.getElementById("cleanlinessBar")
+const restBar = document.getElementById("restBar")
 
 const feedButton = document.getElementById('feedButton')
 const cleanButton = document.getElementById('cleanButton')
 const playButton = document.getElementById('playButton')
+const storeButton = document.getElementById('storeButton')
+const profileButton = document.getElementById('profileButton')
 
 const canvas = document.getElementById('canvas')
 const pen = document.getElementById('pen')
@@ -99,10 +102,25 @@ feedButton.onclick = async () => {
     // $.post('updatePetInfo', () => {}) //todo post new pet info to server
 }
 
+playButton.onclick = () => {
+    window.location.replace("/home/play");
+}
+cleanButton.onclick = () => {
+    window.location.replace("/home/clean");
+}
+storeButton.onclick = () => {
+    window.location.replace("/home/store");
+}
+profileButton.onclick = () => {
+    window.location.replace("/home/profile");
+}
+
 // event handler for resize, keeps canvas inside the #pen div
 addEventListener("resize", (event) => {
     two.width = pen.clientWidth;
     two.height = pen.clientHeight;
+    if(!feedButton.disabled)
+        drawPet()
 });
 
 // pings server every 30 seconds to update the pet info
@@ -118,6 +136,7 @@ async function updateStatus(){
         foodBar.value = pet.food
         cleanlinessBar.value = pet.cleanliness
         happinessBar.value = pet.happiness
+        restBar.value = pet.rest
     }))
 }
 

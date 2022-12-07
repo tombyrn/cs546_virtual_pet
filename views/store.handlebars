@@ -1,7 +1,7 @@
 <div class="container">
     <h1>Store Page</h1>
 
-    <form action="get">
+    <form action="post">
         <div class="itemContainer">
 
             <div class="hatContainer">
@@ -18,20 +18,25 @@
 
             <div class="bgContainer">
                 <label for="bg1">Background 1</label>
-                <button id="bg1" class="bg" formaction="/home/store/bg1"></button>
+                <button id="bg1" class="bg" type="submit" formaction="/home/store/bg1"></button>
 
                 <label for="bg2">Background 2</label>
-                <button id="bg2" class="bg" formaction="/home/store/bg2"></button>
+                <button id="bg2" class="bg" type="submit" formaction="/home/store/bg2"></button>
 
                 <label for="bg3">Background 3</label>
-                <button id="bg3" class="bg" formaction="/home/store/bg3"></button>
+                <button id="bg3" class="bg" type="submit" formaction="/home/store/bg3"></button>
             </div>
-            </form>
 
         </div>
 
-        <button id="back" formaction="/home">
-                back
-        </button>
     </form>
+    <button id="back" type="button" formaction="/home">
+        back
+    </button>
 </div>
+<script>
+    backButton = document.getElementById("back")
+    backButton.onclick = () => {
+        window.location.replace('/home')
+    }
+</script>
