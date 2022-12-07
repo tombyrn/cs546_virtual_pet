@@ -1,14 +1,29 @@
 
-<form class="container" action="get">
-    <button id="game1" type="submit" formaction="/home/play/simon">
+    <button id="simon" type="button" >
         Simon
     </button>
 
-    <button id="game2" type="submit" formaction="/home/play/hangman">
+    <button id="hangman" type="button">
         Hangman
     </button>
 
-    <button id="back" type="submit" formaction="/home">
+    <button id="back" type="button">
         Back
     </button>
-</form>
+
+
+<script>
+    backButton = document.getElementById("back")
+    simonButton = document.getElementById("simon")
+    hangmanButton = document.getElementById("hangman")
+
+    backButton.onclick = () => {
+        window.location.replace('/home')
+    }
+    simonButton.onclick = () => {
+        window.location.replace('/home/play/simon')
+    }
+    hangmanButton.onclick = () => {
+        window.location.replace('/home/play/hangman')
+    }
+</script>
