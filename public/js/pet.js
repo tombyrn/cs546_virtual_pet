@@ -70,7 +70,7 @@ function setSprite(){
 }
 
 // makes an orange circle fall from top middle of canvas to the middle of the sprite
-async function feed(){
+async function feedAnimation(){
     const radius = 10
     const resolution = 100
     const x = two.width/2
@@ -91,15 +91,24 @@ async function feed(){
 
     two.remove(circle)
     two.update();
+
+
 }
 
 // event handler for feed button
 feedButton.onclick = async () => {
     feedButton.disabled = true
-    await feed()
-    feedButton.disabled = false
+
+    await feedAnimation()
+    // after the feed animation ends update the status
     foodBar.value+=10;
-    // $.post('updatePetInfo', () => {}) //todo post new pet info to server
+    if(foodBar.value > 100)
+        foodBar.value = 100
+        
+    feedButton.disabled = false
+    // send new info to server
+    await ($.post('/home/updatePetInfo', {date: Date.now(), foodLevel: foodBar.value, field: "lastFed", isInt: true}))
+    console.log('finished~~')
 }
 
 playButton.onclick = () => {
@@ -131,7 +140,12 @@ setInterval(() => {
 // ajax get request to server that returns the pets information and updates the status bars accordingly
 async function updateStatus(){
     await ($.get("/home/getPetInfo", (data) => {
+
+        
         pet = data.pet
+        if(!pet)
+            window.location.replace('/home/petDeath')
+            
         healthBar.value = pet.health
         foodBar.value = pet.food
         cleanlinessBar.value = pet.cleanliness
@@ -142,6 +156,7 @@ async function updateStatus(){
 
 async function init(){
     await updateStatus()
+
     setSprite()
     drawPet()
 }

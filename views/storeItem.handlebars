@@ -1,13 +1,21 @@
 <h1>{{title}}</h1>
 
-<form action="get">
-
+<form method="post" action='/home/buyItem' >
+    <img src={{imageSrc}} alt={{alt}} width="600" height="400">
     <p>You have {{points}} points</p>
     <p>Purchase for {{price}} points</p>
-    <button id="buy" formaction="/home/store">
+    <button id="buy" name={{name}} value={{price}}>
         Buy
     </button>
-    <button id="back" formaction="/home/store">
+    <button id="back" type="button">
         back
     </button>
 </form>
+
+<script>
+    const back = document.getElementById('back')
+
+    back.onclick = () => {
+        window.location.replace('/home/store')
+    }
+</script>

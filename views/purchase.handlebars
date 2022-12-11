@@ -1,0 +1,26 @@
+<h1>Purchase</h1>
+
+<p>Owned by user: {{owned}}</p>
+<p>Can be purchased: {{canPurchase}}</p>
+
+{{#if owned}}
+    <p>You already own this item!</p>
+    <button id="back">Back</button>
+{{#else}}
+
+    {{#if canPurchase}}
+        <p>Confirm purchase of item for {{price}}?</p>
+        <button id="confirm">Confirm</button>
+    {{#else}}
+        <p>You don't have the funds to purchase this item :(</p>
+        <button id="back">Back</button>
+    {{/if}}
+
+{{/if}}
+
+<script>
+    const back = document.getElementById('back')
+    back.onclick = () => {
+        window.location.replace('/home/store')
+    }
+</script>
