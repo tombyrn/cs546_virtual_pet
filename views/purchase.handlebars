@@ -1,0 +1,54 @@
+<h1>Purchase {{itemName}}</h1>
+
+<p>Owned by user: {{owned}}</p>
+<p>Can be purchased: {{canPurchase}}</p>
+
+{{#if owned}}
+    <p>You already own this item!</p>
+    <label>Do you want to equip this item?</label>
+    <button id="equip">Equip</button>
+{{else}}
+
+    {{#if canPurchase}}
+        <p>Confirm purchase of item for {{price}}?</p>
+        <button id="confirm">Confirm</button>
+    {{else}}
+        <p>You don't have the funds to purchase this item :(</p>
+        <p>{{itemName}} costs {{price}} points</p>
+        <p>You have {{userPoints}} points</p>
+    {{/if}}
+
+{{/if}}
+<button id="back">Back</button>
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script>
+
+    const back = document.getElementById('back')
+    back.onclick = () => {
+        window.location.replace('/home')
+    }
+
+    const confirm = document.getElementById('confirm')
+    if(confirm){
+        confirm.onclick = async () => {
+            await ($.post('/home/purchaseItem', {
+                item: "{{itemName}}",
+                price: {{price}}
+            }))
+            window.location.replace('/home')
+        }
+    }
+
+    const equip = document.getElementById('equip')
+    console.log(equip)
+    if(equip){
+        equip.onclick = async () => {
+            console.log('clicked')
+            await ($.post('/home/equipItem', {
+                item: "{{itemName}}"
+            }))
+            window.location.replace('/home')
+        }
+    }
+</script>

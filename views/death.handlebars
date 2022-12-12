@@ -1,0 +1,23 @@
+<h1>Your pet has died :(</h1>
+
+<button id="newPet">
+    Create New Pet!
+</button>
+
+<button id="logout">
+    Logout
+</button>
+
+<script>
+    const newPet = document.getElementById('newPet')
+    const logout = document.getElementById('logout')
+
+    newPet.onclick = () => {
+        window.location.replace('/home/createPet')
+    }
+
+    logout.onclick = () => {
+        window.location.replace('/logout')
+    }
+
+</script>

@@ -1,9 +1,11 @@
-const express = require('express');
-const app = express();
-const configRoutes = require('./routes');
+const express = require('express')
+const app = express()
+const configRoutes = require('./routes')
+const configListener = require('./listener')
 
 const session = require('express-session')
-const exphbs = require('express-handlebars');
+const exphbs = require('express-handlebars')
+
 
 
 app.use(session({
@@ -33,7 +35,9 @@ app.use((req, res, next) => {
 });
 
 configRoutes(app);
+configListener();
 
 app.listen(4000, () => {
     console.log('Server running on: http://localhost:4000');
 });
+
