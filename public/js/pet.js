@@ -10,7 +10,6 @@ const playButton = document.getElementById('playButton')
 const storeButton = document.getElementById('storeButton')
 const profileButton = document.getElementById('profileButton')
 
-const canvas = document.getElementById('canvas')
 const pen = document.getElementById('pen')
 
 let params = {
@@ -23,18 +22,30 @@ let params = {
 // Create two.js canvas instance inside #pen div
 let two = new Two(params).appendTo(pen)
   
-let green_sprite = '/public/designs/green_guy.webp'
-let blue_sprite = '/public/designs/blue_guy.webp'
-let purple_sprite = '/public/designs/purple_guy.webp'
+let green_sprite = '/public/designs/green_guy'
+let blue_sprite = '/public/designs/blue_guy'
+let purple_sprite = '/public/designs/purple_guy'
 
 let sprite // will be set to the sprite matching the pet objects design field
 let pet // will be set to the req.session.pet cookie held by user
 
-
+let backgroundNo
+let isBackground
 
 // function that creates and adds pet sprite to two.js canvas
+
+function drawBackground(){
+    const bgImage = new Two.ImageSequence(`/public/designs/bg${backgroundNo}.png`, two.width/2, two.height/2, 1)
+    two.add(bgImage)
+}
+
 function drawPet(){
     two.clear()
+    two.width = pen.clientWidth
+    two.height = pen.clientHeight
+    if(isBackground){
+        drawBackground()
+    }
     
     let spriteWidth = 300
     let spriteHeight = 300
@@ -67,6 +78,9 @@ function setSprite(){
         sprite = blue_sprite
     if(pet.design === "3")
         sprite = purple_sprite
+
+    if(pet.hat != 0)
+        sprite+= `_hat${pet.hat}.webp`
 }
 
 // makes an orange circle fall from top middle of canvas to the middle of the sprite
@@ -91,7 +105,6 @@ async function feedAnimation(){
 
     two.remove(circle)
     two.update();
-
 
 }
 
@@ -140,12 +153,13 @@ setInterval(() => {
 // ajax get request to server that returns the pets information and updates the status bars accordingly
 async function updateStatus(){
     await ($.get("/home/getPetInfo", (data) => {
-
-        
         pet = data.pet
         if(!pet)
             window.location.replace('/home/petDeath')
-            
+
+        backgroundNo = data.background
+        isBackground = backgroundNo === 0 ? false : true
+
         healthBar.value = pet.health
         foodBar.value = pet.food
         cleanlinessBar.value = pet.cleanliness
@@ -156,7 +170,6 @@ async function updateStatus(){
 
 async function init(){
     await updateStatus()
-
     setSprite()
     drawPet()
 }

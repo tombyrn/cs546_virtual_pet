@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const userCollection = require('../config/mongoCollections').users
 const petData = require('../data').pets
+const userData = require('../data').users
 
 router.use('/', (req, res, next) => {
     if (!req.session.user /*|| !req.session.pet*/) {
@@ -57,7 +58,7 @@ router.route('/profile').get( async (req, res) => {
         lastCleaned: pet.lastCleaned,
         lastPlayed: pet.lastPlayed,
         hat: pet.hat === "0" ? "none" : pet.hat,
-        background: pet.background
+        background: req.session.user.background
     })
 })
 
@@ -97,7 +98,8 @@ router.route('/getPetInfo').get(async (req, res) => {
         return res.redirect('/home/petDeath')
     }
     res.send({
-        pet
+        pet,
+        background: req.session.user.background
     })
 })
 
@@ -122,17 +124,17 @@ router.route('/store/:id').post((req, res) => {
         case "hat1":        //todo add hats
             title = "Hat 1"
             price = 40
-            imageSrc = ""
+            imageSrc = "/public/designs/hat1.webp"
             break;
         case "hat2":
             title = "Hat 2"
             price = 80
-            imageSrc = ""
+            imageSrc = "/public/designs/hat2.webp"
             break;
         case "hat3":
             title = "Hat 3"
             price = 200
-            imageSrc = ""
+            imageSrc = "/public/designs/hat3.webp"
             break;
         case "bg1":
             title = "Background 1"
@@ -161,30 +163,115 @@ router.route('/store/:id').post((req, res) => {
 
 
 router.route('/buyItem').post((req, res) => {
-    console.log('body', req.body)
-    console.log(req.session.user)
 
     itemName = Object.keys(req.body)[0]
     price = Object.values(req.body)[0]
-    console.log('iN: ', itemName)
-    console.log('p: ', price)
 
+    let itemNo
+    if(itemName.includes('1'))
+        itemNo = 1
+    if(itemName.includes('2'))
+        itemNo = 2
+    if(itemName.includes('3'))
+        itemNo = 3
+
+    const hat = itemName.includes('hat')
+    console.log(hat)
+    console.log(itemNo)
     // check if user already owns the item
+    console.log(req.session.user.backgroundsUnlocked)
+    console.log(req.session.user.hatsUnlocked)
     let owned = false
-    for(bg of req.session.user.backgroundsUnlocked){
-        if(itemName === bg)
-            owned = true
+    if(hat){
+        for(h of req.session.user.hatsUnlocked){
+            if(itemNo === h)
+                owned = true
+        }
     }
-    for(hat of req.session.user.hatsUnlocked){
-        if(itemName === hat)
-            owned = true
+    else{
+        for(b of req.session.user.backgroundsUnlocked){
+            if(itemNo === b)
+                owned = true
+        }
     }
+
 
     // check if user has enough points to purchase
     let canPurchase = 
-    req.session.user.points >= points ? true : false
+    req.session.user.points >= price ? true : false
 
-    res.render('purchase', {owned, canPurchase})
+    switch (itemName) {
+        case "hat1":
+            itemName = "Hat 1"
+            break;
+        case "hat2":
+            itemName = "Hat 2"
+            break;
+        case "hat3":
+            itemName = "Hat 3"
+            break;
+        case "bg1":
+            itemName = "Background 1"
+            break;
+        case "bg2":
+            itemName = "Background 2"
+            break;
+        case "bg3":
+            itemName = "Background 3"
+            break;
+        default:
+            break;
+    }
+
+    res.render('purchase', {itemName, price, owned, canPurchase,  userPoints: req.session.user.points})
+})
+
+router.route('/purchaseItem').post(async (req, res) => {
+    console.log(req.body)
+    // console.log(req.session)
+    const itemName = req.body.item
+    const price = parseInt(req.body.price)
+    console.log(itemName, price)
+
+    let itemNo
+    if(itemName.includes('1'))
+        itemNo = 1
+    if(itemName.includes('2'))
+        itemNo = 2
+    if(itemName.includes('3'))
+        itemNo = 3
+
+    let status = await userData.addPoints(req.session.user.id, req.session.user.username, -price)
+    status = await userData.giveItemToUser(req.session.user.id, itemNo, itemName.includes('Hat'))
+    console.log(status)
+    req.session.user.points = status.points
+    req.session.user.hatsUnlocked = status.hatsUnlocked
+    req.session.user.backgroundsUnlocked = status.backgroundsUnlocked
+    res.end()
+})
+
+router.route('/equipItem').post(async (req, res) => {
+    console.log(req.body)
+    const itemName = req.body.item
+    
+    let itemNo
+    if(itemName.includes('1'))
+        itemNo = 1
+    if(itemName.includes('2'))
+        itemNo = 2
+    if(itemName.includes('3'))
+        itemNo = 3
+
+    if(itemName.includes('Hat')){
+        req.session.hat = itemNo
+        await petData.updateHat(req.session.user.id, itemNo)
+    }
+    else{
+        req.session.user.background = itemNo
+        await userData.updateBackground(req.session.user.id, itemNo)
+    }
+    console.log(req.session)
+    res.end()
 })
 
 module.exports = router

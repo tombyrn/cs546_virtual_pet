@@ -184,6 +184,40 @@ const updateUserInfo = async(
 
 }
 
+// updates either the backgroundsUnlocked array or the hatsUnlocked array of the user depending on hat === true
+// itemNo should be the number of the item to add to the array (eg. Background 3 -> itemNo = 3, Hat 1 -> itemNo = 1)
+const giveItemToUser = async (
+    userId, itemNo, hat
+)  =>  {
+    const userCollection = await users()
+
+    let status
+    if(hat)
+        status = await userCollection.updateOne({_id: ObjectId(userId)}, {$push: {hatsUnlocked: itemNo}})
+    else
+        status = await userCollection.updateOne({_id: ObjectId(userId)}, {$push: {backgroundsUnlocked: itemNo}})
+
+    if(!status.acknowledged)
+        throw 'Error: item could not be given to user'
+
+
+    return await userCollection.findOne({_id: ObjectId(userId)})
+}
+
+const updateBackground = async (
+    userId, bgNo
+) => {
+    const userCollection = await users()
+
+    const status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {background: bgNo}})
+
+    if(!status.acknowledged)
+        throw 'Error: background not updated in database'
+
+    return await userCollection.findOne({_id: ObjectId(userId)})
+}
+
+
 
 // const createPetSession = async (
 //     userId
@@ -193,4 +227,4 @@ const updateUserInfo = async(
 //     const petCollection = await pets()
 // }
 
-module.exports = {createUser, checkUser, addPoints, updateUserInfo};
+module.exports = {createUser, checkUser, addPoints, updateUserInfo, giveItemToUser, updateBackground};
