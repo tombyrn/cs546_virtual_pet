@@ -80,7 +80,9 @@ function setSprite(){
         sprite = purple_sprite
 
     if(pet.hat != 0)
-        sprite+= `_hat${pet.hat}.webp`
+        sprite+= `_hat${pet.hat}`
+
+    sprite += '.webp'
 }
 
 // makes an orange circle fall from top middle of canvas to the middle of the sprite
