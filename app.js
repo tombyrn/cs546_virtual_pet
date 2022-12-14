@@ -63,7 +63,7 @@ app.set("view engine", "handlebars");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/", routes);
+app.use("/choose", routes);
 //
 
 configRoutes(app);

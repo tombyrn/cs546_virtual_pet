@@ -102,7 +102,7 @@ router.route('/play/hangman').get((req, res) => {
     res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: hangmanGameDate.word})
 })
 // GET request to 'home/play/hangman'
-router.route('/').get((req, res) => {
+router.route('/choose').get((req, res) => {
     res.render('choosegame')
 })
 
