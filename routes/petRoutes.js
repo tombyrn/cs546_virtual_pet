@@ -82,16 +82,6 @@ router.route('/createPet').get((req, res) => {
     return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
 })
 
-// // GET request to 'home/play/simon'
-// router.route('/play/simon').get((req, res) => {
-//     res.render('simon', {title: "Simon"})
-// })
-
-// // GET request to 'home/play/hangman'
-// router.route('/play/hangman').get((req, res) => {
-//     res.render('hangman', {title: "Hangman"})
-// })
-
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
     res.render('simon')
