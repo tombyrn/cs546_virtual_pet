@@ -150,12 +150,16 @@ router.route('/petDeath').get(async (req, res) => {
     res.render('death', {title: ':(', style: '/public/css/death.css'})
 })
 
-// POST request to 'home/updatePetFood', called in an ajax request in home page when the pet is fed
 router.route('/updatePetFood').post(async (req, res) => {
-    // update the lastFed field in the database
-    await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
-    // update the food field and the pet session cookie
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
+    const pet = await petData.getPetAttributes(req.session.user.id);
+    const fedStatus = await petData.petAction(pet._id, 'feed');
+    // await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
+    // await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
+
+    // TODO: Update cookie?
+    // req.session.pet.lastFed = parseInt(req.body.date)
+    // req.session.pet.food = parseInt(req.body.foodLevel)
+    // console.log('finished')
     res.end();
 })
 

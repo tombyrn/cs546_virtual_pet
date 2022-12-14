@@ -1,3 +1,23 @@
+const {min_design, max_design, min_bg, max_bg, min_hat, max_hat} = require('./gameConstants').designLimits;
+const {ObjectId} = require('mongodb');
+
+// Checks that id (as a string) exists and is a valid mongoDB Object ID. 
+// Does *not* check that object with id exists! 
+function validateIdString(id){
+    if(!id){throw 'Error: Object ID must be provided.'}
+    if (typeof id !== 'string'){
+        throw 'Error: Object ID input must be a string.'
+    }
+    id = id.trim()
+    if (id.length === 0){
+        throw 'Error: Object ID input cannot be only whitespace.'
+    }
+    if (!ObjectId.isValid(id)){
+        throw 'Error: Object ID input is not a valid Object ID.'
+    }
+    return id;
+}
+
 function validateName(name, prefix){
     if(!name){throw `Error: ${prefix} name must be provided.`}
     if (typeof name !== 'string'){
@@ -31,7 +51,7 @@ function validateEmail(email){
 }
 
 function validateUsername(username) {
-    if(!username){throw `Error: Username name must be provided.`}
+    if(!username){throw `Error: Username must be provided.`}
     if (typeof username !== 'string'){
         throw 'Error: Username must be a string.'
     }
@@ -47,7 +67,7 @@ function validateUsername(username) {
 }
 
 function validatePassword(password) {
-    if(!password){throw `Error: password name must be provided.`}
+    if(!password){throw 'Error: Password must be provided.'}
     if (typeof password !== 'string'){
         throw 'Error: Password must be a string.';
     }
@@ -76,10 +96,56 @@ function setUserSession(user) {
     }
 }
 
+function validatePoints(points) {
+    if(!points){throw 'Error: Points must be provided.'}
+    if (typeof points !== 'number' || !Number.isInteger(points)){
+        throw 'Error: Points must be an integer.';
+    }
+    return points;
+}
+
+function validateDesignNumber(designNumber) {
+    if(!designNumber){throw 'Error: Design number must be provided.'}
+    if (typeof designNumber !== 'number' || !Number.isInteger(designNumber)){
+        throw 'Error: Design number must be an integer.';
+    }
+    if (designNumber < min_design || designNumber > max_design){
+        throw `Error: Design number must be between ${min_design} and ${max_design} inclusive.`
+    }
+    return designNumber;
+}
+
+function validateHatNumber(hatNumber) {
+    if(!hatNumber){throw 'Error: Hat number must be provided.'}
+    if (typeof hatNumber !== 'number' || !Number.isInteger(hatNumber)){
+        throw 'Error: Hat number must be an integer.';
+    }
+    if (hatNumber < min_hat || hatNumber > max_hat){
+        throw `Error: Hat number must be between ${min_hat} and ${max_hat} inclusive.`
+    }
+    return hatNumber;
+}
+
+function validateBgNumber(bgNumber) {
+    if(!bgNumber){throw 'Error: Background number must be provided.'}
+    if (typeof bgNumber !== 'number' || !Number.isInteger(bgNumber)){
+        throw 'Error: Background number must be an integer.';
+    }
+    if (bgNumber < min_bg || bgNumber > max_bg){
+        throw `Error: Background number must be between ${min_bg} and ${max_bg} inclusive.`
+    }
+    return bgNumber;
+}
+
 module.exports = {
+    validateIdString,
     validateName,
     validateEmail,
     validateUsername,
     validatePassword,
-    setUserSession
+    setUserSession,
+    validatePoints,
+    validateDesignNumber,
+    validateHatNumber,
+    validateBgNumber
 }
