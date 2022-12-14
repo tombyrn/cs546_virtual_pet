@@ -1,12 +1,128 @@
-<h1>Hangman</h1>
-
-<button id="back">
-    back
-</button>
-
+<div class="wrapper">
+  <h1>Hangman Game</h1>
+  <h3>Choose the alphabet below to guess the word.</h3>
+  <div class="letter-div">
+    {{#each alphabets}}
+    <button class="alpha btn btn-primary" style="display: inline-block;">{{this}}</button>
+    {{/each}}
+  </div><br>
+  <p>Get a hint if you need any help</p> <br>
+  <div class="hint-div hidden">
+    <p>Hint:-</p>
+    <p class="hint-txt">Sample Hint for test</p>
+  </div>
+  <p id="selectedword" style="display: none;">{{hintword}}</P>
+  <div class="word-div">
+    {{#times hintword.length}}
+    <p class="word">_</p>
+    {{/times}}
+  </div>
+  <h3>Remaining Lives: <span id="lives">{{lives}}</span></h3>
+  <div class="row hint-div">
+    <button class="hint-btn btn btn-primary" style="display: inline-block;float:right;">Hint</button>
+    {{!-- <form method="get" url="/" style="display: inline-block;float:right;margin-left: 80%;">
+      <button type="submit" class="btn btn-primary" style="display: inline-block;float:right">Reset</button>
+    </form> --}}
+    &nbsp; &nbsp;
+    <form method="get" url="/home/play">
+      <button id="game2" class="btn btn-primary" style="display: inline-block;margin-left:800px" type="submit"
+        formaction="/home/play">
+        Back To Game studio
+      </button>
+    </form>
+  </div>
+</div>
+<div class="notif hidden">
+  <h2>Game Over !!</h2>
+  <h3 class="notif-content">You won</h3>
+  <h4>Correct Word: <span class="notif-span"></span></h4>
+  <form method="get" url="/play/hangman">
+    <button type="submit" class="notif-btn btn btn-primary" style="display: inline-block;"
+      formaction="/home/play/hangman">Play Again</button>
+</div>
 <script>
-    backButton = document.getElementById("back")
-    backButton.onclick = () => {
-        window.location.replace('/home')
+
+  const hintButton = document.querySelector('.hint-btn');
+  const hintDiv = document.querySelector('.hint-div');
+  const hintText = document.querySelector('.hint-txt');
+  const wordDiv = document.querySelector('.word-div');
+  const notif = document.querySelector('.notif');
+  const notifContent = document.querySelector('.notif-content');
+  const notifSpan = document.querySelector('.notif-span');
+
+  let letters;
+  let lives;
+  let select_word;
+
+  const init = function (state) {
+    letters = document.querySelectorAll('.alpha');
+    select_word = document.getElementById('selectedword').innerText;
+    lives = document.getElementById('lives').innerText;
+  };
+  init()
+  const showNotif = function (msg) {
+    notif.classList.remove('hidden');
+    notifSpan.textContent = select_word;
+    notifContent.textContent = `You ${msg}`;
+  };
+
+  const decreaseLife = function () {
+    lives--;
+    document.getElementById('lives').innerText = lives;
+    if (lives === 0) {
+      showNotif('lost');
     }
+  };
+
+  const getindexes = function (letter) {
+    let indexes = [];
+    [...select_word].forEach((val, i) => {
+      if (val === letter) {
+        const index = i;
+        indexes.push(index);
+      }
+    });
+    return indexes;
+  };
+
+  const checkWord = function () {
+    let val = true;
+    for (let i = 0; i < wordDiv.children.length; i++) {
+      if (wordDiv.children[i].textContent === '_') {
+        val = false;
+      }
+    }
+    return val;
+  };
+
+  const letterPress = function () {
+    const letter = this.textContent.toLowerCase();
+    if (select_word.includes(letter)) {
+      const indexes_list = getindexes(letter);
+      indexes_list.forEach((val, i) => {
+        wordDiv.children[val].textContent = this.textContent;
+      });
+      if (checkWord()) showNotif('won');
+    } else {
+      decreaseLife();
+    }
+    this.classList.add('disabled');
+  };
+
+  letters.forEach(btn => {
+    btn.addEventListener('click', letterPress);
+  });
+
+  hintButton.addEventListener('click', function () {
+    hintDiv.classList.remove('hidden');
+    let url = `http://localhost:4000/home/gethint?answertext=${select_word}`
+    $.ajax({
+      url: url, success: function (result) {
+       hintText.textContent = result;
+      }
+    });
+    
+  });
+
 </script>
+<link rel="stylesheet" type="text/css" href="/css/hangman.css">
