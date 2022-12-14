@@ -1,6 +1,7 @@
 const petData = require('./data').pets
 
-const DECAY_RATE = 30 * 1000 // decay every 30 seconds
+// Decay every five minutes
+const DECAY_RATE = require('./gameConstants').decaySettings.decayInterval * 60 * 1000
 
 const constructorMethod = () => {
     setInterval(async () => {
