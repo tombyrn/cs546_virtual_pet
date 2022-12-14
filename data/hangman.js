@@ -28,9 +28,12 @@ const alphabets = [
   ];
   const lives = 5
   const words = new Map([
-    ["test", "a test word"],
-    ["tests", "another test word"],
-    ["random", "some random word"]
+    ["sparrow", "A bird with grey head, white cheeks."],
+    ["dog", "You can take this one for a walk!"],
+    ["cat", "The cuddly domesticated decendent of big cats."],
+    ["cryptography", "Method of encrypting text."],
+    ["programming", "Pocess of instructing the computer to perform a series of operations."],
+    ["computer", "Comes in different shapes and sizes, used to watch netflix, write code, write emails."]
   ]);
   
   const word_list = [...words.keys()];
