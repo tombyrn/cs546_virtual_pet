@@ -1,17 +1,4 @@
-{{!-- <h1>Simon</h1>
-
-<button id="back">
-    back
-</button>
-
-<script>
-    backButton = document.getElementById("back")
-    backButton.onclick = () => {
-        window.location.replace('/home')
-    }
-</script> --}}
-
-<h1>Press Any Key to Start</h1>
+<h1>Simon Memory Game</h1>
 <button type="button" class="start btn btn-lg">Start</button>
 <div class="main-container">
     <div class="main-row">
@@ -28,8 +15,8 @@
     </div>
 </div>
 
-<form method="get" url="/">
-    <button id="game2" class="btn btn-primary" type="submit" formaction="/">
+<form method="get" url="/home/play">
+    <button id="game2" class="btn btn-primary" type="submit" formaction="/home/play">
         Back To Game studio
     </button>
 </form>
