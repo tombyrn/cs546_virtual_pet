@@ -65,9 +65,21 @@ function validatePassword(password) {
     return password;
 }
 
+function setUserSession(user) {
+    return {
+        id: user._id, 
+        username: user.username, 
+        points: user.points, 
+        background: user.background, 
+        hatsUnlocked: user.hatsUnlocked, 
+        backgroundsUnlocked: user.backgroundsUnlocked
+    }
+}
+
 module.exports = {
     validateName,
     validateEmail,
     validateUsername,
-    validatePassword
+    validatePassword,
+    setUserSession
 }

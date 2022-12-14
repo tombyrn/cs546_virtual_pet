@@ -123,6 +123,7 @@ feedButton.onclick = async () => {
     feedButton.disabled = false
     // send new info to server
     await ($.post('/home/updatePetInfo', {date: Date.now(), foodLevel: foodBar.value, field: "lastFed", isInt: true}))
+    await updateStatus()
     console.log('finished~~')
 }
 
@@ -156,6 +157,7 @@ setInterval(() => {
 async function updateStatus(){
     await ($.get("/home/getPetInfo", (data) => {
         pet = data.pet
+        console.log(data)
         if(!pet)
             window.location.replace('/home/petDeath')
 

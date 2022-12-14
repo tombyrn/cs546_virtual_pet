@@ -1,4 +1,5 @@
 <h1>Simon Memory Game</h1>
+<h2></h2>
 <button type="button" class="start btn btn-lg">Start</button>
 <div class="main-container">
     <div class="main-row">
@@ -20,7 +21,7 @@
         Back To Game studio
     </button>
 </form>
-<link rel="stylesheet" type="text/css" href="/css/simon.css">
+
 <script>
     var gamePattern = [];
 
@@ -83,11 +84,13 @@
 
 
 
-    function checkAnswer(currentLevel) {
+    async function checkAnswer(currentLevel) {
         if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
             if (gamePattern.length === userClickedPattern.length) {
                 if (level == 5) {
-                    $("h1").text("Congrats!!.You have won");
+                    $("h1").text("Congrats!!!You have won");
+                    $("h2").text("You earned 50 points");
+                    await ($.post('/addUserPoints', {points: 50}))
                     started = false;
                     level = 0;
                     $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');

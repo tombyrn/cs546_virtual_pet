@@ -93,7 +93,7 @@ const updatePetAttribute = async (
     obj = {}
     obj[field] = value
     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: obj})
-    return status
+    return await petCollection.findOne({userId: ObjectId(userId)})
 }
 
 const petCollectionDecay = async (
@@ -120,4 +120,22 @@ const updateHat = async (
     return await petCollection.findOne({userId: ObjectId(userId)})
 }
 
-module.exports = {createPet, givePetToUser, getPetAttributes, updatePetAttribute, petCollectionDecay, updateHat}
+const calculateHealth = async (
+    userId
+) => {
+    const petCollection = await pets()
+
+    const pet = await petCollection.findOne({userId: ObjectId(userId)})
+
+    let health
+    if(pet)
+        health =  (pet.cleanliness + pet.happiness + pet.food) / 3
+
+    const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: {health}})
+    if(!status.acknowledged)
+        throw 'Error: health not updated in database'
+
+    return await petCollection.findOne({userId: ObjectId(userId)})
+}
+
+module.exports = {createPet, givePetToUser, getPetAttributes, updatePetAttribute, petCollectionDecay, updateHat, calculateHealth}

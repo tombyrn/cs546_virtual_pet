@@ -3,7 +3,7 @@ const router = require('express').Router()
 const userData = require('../data/').users
 const petData = require('../data/').pets
 
-const {validateName, validateEmail, validateUsername, validatePassword} = require('../helpers')
+const {validateName, validateEmail, validateUsername, validatePassword, setUserSession} = require('../helpers')
 
 // GET request to '/'
 router.route('/').get((req, res) => {
@@ -12,7 +12,6 @@ router.route('/').get((req, res) => {
     }
     else{
         return res.render('landing', {title: 'Dev-agotchi', style: "/public/css/landing.css"})
-        //return res.redirect('/login')
     }
 })
 
@@ -61,14 +60,7 @@ router.route('/login').post(async (req, res) => {
     
     // create express session if the user exists, and send to home page
     if(user.authenticatedUser){
-        req.session.user = {
-            username, 
-            id: user.userId, 
-            points: user.points, 
-            background: user.background, 
-            hatsUnlocked: user.hatsUnlocked, 
-            backgroundsUnlocked: user.backgroundsUnlocked
-        }
+        req.session.user = setUserSession(user.userInfo)
         req.session.pet = await petData.getPetAttributes(user.userId)
         return res.redirect('/home')
     }
@@ -141,7 +133,7 @@ router.route('/register').post(async (req, res) => {
 
     // create express session if the user is created, and send to pet creation
     if(user.insertedUser){
-        req.session.user = {username, id: user.userId}
+        req.session.user = setUserSession(user.userInfo)
         return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
     }
     
@@ -159,6 +151,11 @@ router.route('/logout').get((req, res) => {
     }
 })
 
+router.route('/addUserPoints').post(async (req, res) => {
+    const user = await userData.addPoints(req.session.user.id, req.session.user.username, parseInt(req.body.points))
+    req.session.user.points = user.points
+    res.end()
+})
 
 
 module.exports = router;

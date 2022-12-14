@@ -41,7 +41,8 @@ router.route('/profile').get( async (req, res) => {
     const pet = req.session.pet
 
     //presenting date on the screen
-    
+    if(!pet)
+        throw 'Error: no pet session cookie (petRoutes.js line45)'
     pet.lastFed = new Date(Number(pet.lastFed)).toDateString();
     pet.lastCleaned = new Date(Number(pet.lastCleaned)).toDateString();
     pet.lastPlayed = new Date(Number(pet.lastPlayed)).toDateString();
@@ -84,16 +85,16 @@ router.route('/createPet').get((req, res) => {
 
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon')
+    res.render('simon', {title: 'Simon', style: '/public/css/simon.css'})
 })
 
 // GET request to 'home/play/hangman'
 router.route('/play/hangman').get((req, res) => {
-    res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: hangmanGameDate.word})
+    res.render('hangman', {title: 'Hangman', style: '/public/css/hangman.css', alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: hangmanGameDate.word})
 })
 // GET request to game studio
 router.route('/choose').get((req, res) => {
-    res.render('choosegame')
+    res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'})
 })
 
 // GET request to get hint
@@ -106,13 +107,14 @@ router.route('/gethint').get((req, res) => {
 
 router.route('/getPetInfo').get(async (req, res) => {
     pet = await petData.getPetAttributes(req.session.user.id);
+    pet = await petData.calculateHealth(req.session.user.id)
     if(pet === null){
-        console.log('here')
         return res.redirect('/home/petDeath')
     }
+
     res.send({
         pet,
-        background: req.session.user.background
+        background: req.session.user.background,
     })
 })
 
@@ -122,11 +124,11 @@ router.route('/petDeath').get(async (req, res) => {
 
 router.route('/updatePetInfo').post(async (req, res) => {
     await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
-    await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
+    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
 
     req.session.pet.lastFed = parseInt(req.body.date)
     req.session.pet.food = parseInt(req.body.foodLevel)
-    console.log('finished')
+
     res.end();
 })
 

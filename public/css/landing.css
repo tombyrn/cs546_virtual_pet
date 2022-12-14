@@ -49,3 +49,7 @@ a:visited {
 #links{
     font-size: 20px;
 }
+
+div {
+    text-align: center;
+}

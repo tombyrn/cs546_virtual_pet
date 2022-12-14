@@ -60,10 +60,17 @@
     lives = document.getElementById('lives').innerText;
   };
   init()
-  const showNotif = function (msg) {
+  const showNotif = async function (msg) {
     notif.classList.remove('hidden');
     notifSpan.textContent = select_word;
+    console.log("msg: ", msg)
     notifContent.textContent = `You ${msg}`;
+    if(msg === 'won'){
+      await ($.post('/addUserPoints', {points: 100}))
+      notifContent.textContent += "\nYou earned 100 points!"
+    }
+
+
   };
 
   const decreaseLife = function () {
@@ -125,4 +132,3 @@
   });
 
 </script>
-<link rel="stylesheet" type="text/css" href="/css/hangman.css">

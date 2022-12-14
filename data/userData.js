@@ -70,7 +70,7 @@ const createUser = async (
     if (!status.acknowledged || !status.insertedId)
         throw 'Error: Could not add user to database'
 
-    return {insertedUser: true, userId: status.insertedId}
+    return {insertedUser: true, userInfo: await userCollection.findOne({_id: status.insertedId})}
 };
 
 // returns object of {authenticatedUser: boolean, userId: ObjectId}
@@ -106,11 +106,7 @@ const checkUser = async (
     if(match)
         return {
             authenticatedUser: true, 
-            userId: user._id, 
-            points: user.points,
-            background: user.background, 
-            hatsUnlocked: user.hatsUnlocked, 
-            backgroundsUnlocked: user.backgroundsUnlocked
+            userInfo: await userCollection.findOne({_id: user._id})
         }
     else
         throw 'Error: Either the username or password is invalid'

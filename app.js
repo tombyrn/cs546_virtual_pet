@@ -39,8 +39,6 @@ app.use((req, res, next) => {
     next();
 });
 
-//games 
-app.use(express.static(path.join(__dirname, "public")));
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 

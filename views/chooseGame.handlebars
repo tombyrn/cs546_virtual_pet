@@ -1,15 +1,32 @@
-<form action="get">
+
   <div class="center">
     <h1>Welcome to game studio</h1>
   </div>
   <div class="center1">
-     <button  class="btn btn-primary" type="submit" formaction="/home/play/simon">
+     <button  id="simon" class="btn btn-primary" type="submit" formaction="/home/play/simon">
       Play Simon
-    </button> &nbsp;&nbsp;&nbsp;
-    <button  class="btn btn-primary" type="submit" formaction="/home/play/hangman">
+    </button>
+    <button  id="hangman" class="btn btn-primary" type="submit" formaction="/home/play/hangman">
       Play Hangman
     </button>
   </div>
-</form>
+    <button id="back" class="btn btn-primary">Back</button>
 
-<link rel="stylesheet" type="text/css"  href="/css/chooseGame.css">
+<script>
+  const back = document.getElementById('back')
+  const simon = document.getElementById('simon')
+  const hangman = document.getElementById('hangman')
+
+  back.onclick = () => {
+    window.location.replace('/home')
+  }
+
+  simon.onclick = () => {
+    window.location.replace('/home/play/simon')
+  }
+
+  hangman.onclick = () => {
+    window.location.replace('/home/play/hangman')
+  }
+
+</script>
