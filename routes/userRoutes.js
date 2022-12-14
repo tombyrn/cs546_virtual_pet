@@ -151,10 +151,18 @@ router.route('/logout').get((req, res) => {
     }
 })
 
+// POST request to 'addUserPoints', called in ajax request when the user earns or spends points
 router.route('/addUserPoints').post(async (req, res) => {
     const user = await userData.addPoints(req.session.user.id, req.session.user.username, parseInt(req.body.points))
     req.session.user.points = user.points
     res.end()
+})
+
+// POST request to 'updateUserBackground', called in ajax request when the user changes their background
+router.route('/updateUserBackground').post(async (req, res) => {
+    const user = await userData.updateBackground(req.session.user.id, req.body.background)
+    req.session.user.background = user.background
+    res.end();
 })
 
 

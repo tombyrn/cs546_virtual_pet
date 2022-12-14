@@ -100,3 +100,12 @@
     100% {background-color: red;}
     
 }
+
+.selectorContainer {
+    display: flex;
+    flex-direction: column;
+    width: 15%;
+    height: 25%;
+    border: orange dotted;
+    padding: 1%;
+}

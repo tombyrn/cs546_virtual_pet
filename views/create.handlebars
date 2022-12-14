@@ -5,18 +5,23 @@
     <form method="post" action="/home/createPet">
 
         <div class="buttonContainer">
-            <label for="design1 ">Design 1</label>
+            <label for="design1 ">Green</label>
             <input type="radio" id="design1" name="design" class="design" value="1">
+            <img id="img1" src="/public/designs/green_guy_still.webp" alt="Gree Guy">
 
-            <label for="design2">Design 2</label>
+            <label for="design2">Blue</label>
             <input type="radio" id="design2" name="design" class="design" value="2">
+            <img id="img2" src="/public/designs/blue_guy_still.webp" alt="Blue Guy">
 
-            <label for="design3">Design 3</label>
+            <label for="design3">Purple</label>
             <input type="radio" id="design3" name="design" class="design" value="3">
+            <img id="img3" src="/public/designs/purple_guy_still.webp" alt="Purple Guy">
         </div>
+        <p class="error" id="designError">{{designError}}</p>
 
         <label for="name">Pet Name:</label>
         <input type="text" id="name" name="name">
+        <p class="error" id="nameError">{{nameError}}</p>
 
         <div class="button-container">
             <button type="submit">Enter</button>
@@ -25,3 +30,17 @@
     </form>
 
 </div>
+
+<script>
+    const input1 = document.getElementById('design1')
+    const input2 = document.getElementById('design2')
+    const input3 = document.getElementById('design3')
+
+    const img1 = document.getElementById('img1')
+    const img2 = document.getElementById('img2')
+    const img3 = document.getElementById('img3')
+
+    img1.onclick = () => {input1.checked = true}
+    img2.onclick = () => {input2.checked = true}
+    img3.onclick = () => {input3.checked = true}
+</script>

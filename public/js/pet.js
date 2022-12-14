@@ -1,3 +1,4 @@
+// grab elements
 const healthBar = document.getElementById("healthBar")
 const foodBar = document.getElementById("foodBar")
 const happinessBar = document.getElementById("happinessBar")
@@ -10,8 +11,12 @@ const playButton = document.getElementById('playButton')
 const storeButton = document.getElementById('storeButton')
 const profileButton = document.getElementById('profileButton')
 
+const hatSelector = document.getElementById('hatSelector')
+const bgSelector = document.getElementById('bgSelector')
+
 const pen = document.getElementById('pen')
 
+// set parameters for two.js canvas
 let params = {
     type: Two.Types.canvas,
     fullscreen: false,
@@ -28,22 +33,24 @@ let purple_sprite = '/public/designs/purple_guy'
 
 let sprite // will be set to the sprite matching the pet objects design field
 let pet // will be set to the req.session.pet cookie held by user
+let user // will be set to the req.session.user cookie held by user
 
-let backgroundNo
-let isBackground
+let backgroundNo // will contain the number of background selected (0 = no background)
+let hatsUnlocked // will contain the array of available hats to the user
+let backgroundsUnlocked // will contain the array of available backgrounds to the user
+
 
 // function that creates and adds pet sprite to two.js canvas
-
-function drawBackground(){
-    const bgImage = new Two.ImageSequence(`/public/designs/bg${backgroundNo}.png`, two.width/2, two.height/2, 1)
-    two.add(bgImage)
-}
-
 function drawPet(){
+    function drawBackground(){
+        const bgImage = new Two.ImageSequence(`/public/designs/bg${backgroundNo}.png`, two.width/2, two.height/2, 1)
+        two.add(bgImage)
+    }
+
     two.clear()
     two.width = pen.clientWidth
     two.height = pen.clientHeight
-    if(isBackground){
+    if(backgroundNo && backgroundNo != 0){
         drawBackground()
     }
     
@@ -122,11 +129,12 @@ feedButton.onclick = async () => {
         
     feedButton.disabled = false
     // send new info to server
-    await ($.post('/home/updatePetInfo', {date: Date.now(), foodLevel: foodBar.value, field: "lastFed", isInt: true}))
+    await ($.post('/home/updatePetFood', {date: Date.now(), foodLevel: foodBar.value, field: "lastFed", isInt: true}))
     await updateStatus()
-    console.log('finished~~')
+
 }
 
+// button click redirects
 playButton.onclick = () => {
     window.location.replace("/home/play");
 }
@@ -138,6 +146,18 @@ storeButton.onclick = () => {
 }
 profileButton.onclick = () => {
     window.location.replace("/home/profile");
+}
+
+// select input on change handlers
+hatSelector.onchange = async (e) => {
+    pet.hat = parseInt(e.target.value)
+    await ($.post('/home/updatePetHat', {hat: pet.hat}))
+    init()
+}
+bgSelector.onchange = async (e) => {
+    backgroundNo = parseInt(e.target.value)
+    await ($.post('/updateUserBackground', {background: backgroundNo}))
+    init()
 }
 
 // event handler for resize, keeps canvas inside the #pen div
@@ -157,12 +177,13 @@ setInterval(() => {
 async function updateStatus(){
     await ($.get("/home/getPetInfo", (data) => {
         pet = data.pet
-        console.log(data)
+        // console.log(data)
         if(!pet)
             window.location.replace('/home/petDeath')
 
         backgroundNo = data.background
-        isBackground = backgroundNo === 0 ? false : true
+        hatsUnlocked = data.hatsUnlocked
+        backgroundsUnlocked = data.backgroundsUnlocked
 
         healthBar.value = pet.health
         foodBar.value = pet.food
@@ -172,8 +193,25 @@ async function updateStatus(){
     }))
 }
 
+// sets the hatSelector and bgSelector so only the available options are enabled
+function setSelectors() {
+    hatSelector.value = pet.hat
+    bgSelector.value = backgroundNo
+    for(hat of hatsUnlocked){
+        console.log('hat: ', hat)
+        document.getElementById(`hat${hat}`).disabled = false
+    }
+
+    for(bg of backgroundsUnlocked){
+        console.log('bg: ', bg)
+        document.getElementById(`bg${bg}`).disabled = false
+    }
+}
+
+// called when the page is loaded
 async function init(){
     await updateStatus()
+    setSelectors()
     setSprite()
     drawPet()
 }
