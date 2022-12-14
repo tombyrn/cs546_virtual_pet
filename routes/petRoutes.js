@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const userCollection = require('../config/mongoCollections').users
+
 const petData = require('../data').pets
 const userData = require('../data').users
 const hangmanGameDate = require('../data').hangmanGameDate
@@ -40,13 +40,16 @@ router.route('/profile').get( async (req, res) => {
     
     const pet = req.session.pet
 
-    //presenting date on the screen
+    // throw error if pet doesn't exist
     if(!pet)
         throw 'Error: no pet session cookie (petRoutes.js line45)'
+
+    // presenting date on the screen
     pet.lastFed = new Date(Number(pet.lastFed)).toDateString();
     pet.lastCleaned = new Date(Number(pet.lastCleaned)).toDateString();
     pet.lastPlayed = new Date(Number(pet.lastPlayed)).toDateString();
 
+    // render profile page with all relevant information
     res.render('profile', {
         title: 'Profile', 
         style: '/public/css/profile.css',
@@ -66,16 +69,20 @@ router.route('/profile').get( async (req, res) => {
 
 // POST request to 'home/createPet' 
 router.route('/createPet').post( async (req, res) => {
-    // if no design or name is specified throw error (todo: make more sophisticated error handling)
+    // if no design or name is specified rerender the page
     if(!req.body.design)
-        throw 'No design input chosen'
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: 'You need to choose a pet design'})
     if(!req.body.name)
-        throw 'No name input chosen'
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
 
+    // create a new pet in the database
     const pet = await petData.createPet(req.session.user.id, {name: req.body.name, design: req.body.design})
 
+    // add pet information to user database entry
     const status = await petData.givePetToUser(req.session.user.id, pet.petId)
+    // set the pet session cookie
     req.session.pet = await petData.getPetAttributes(req.session.user.id)
+
     res.redirect('/home')
 })
 
@@ -105,38 +112,53 @@ router.route('/gethint').get((req, res) => {
     res.send(hint).status(200);
 })
 
+// GET request to 'home/getPetInfo', called in an ajax request in home page
 router.route('/getPetInfo').get(async (req, res) => {
+    // get pet information from database
     pet = await petData.getPetAttributes(req.session.user.id);
+    // calculate the total health of the pet
     pet = await petData.calculateHealth(req.session.user.id)
+
+    // if the pet doesn't exist it has died
     if(pet === null){
-        return res.redirect('/home/petDeath')
+        return res.redirect('/home/petDeath') // send the use to death screen
     }
 
+    // send information back to home page to be displayed
     res.send({
         pet,
         background: req.session.user.background,
+        hatsUnlocked: req.session.user.hatsUnlocked,
+        backgroundsUnlocked: req.session.user.backgroundsUnlocked
     })
 })
 
+// GET request to 'home/petDeath'
 router.route('/petDeath').get(async (req, res) => {
     res.render('death', {title: ':('})
 })
 
-router.route('/updatePetInfo').post(async (req, res) => {
+// POST request to 'home/updatePetFood', called in an ajax request in home page when the pet is fed
+router.route('/updatePetFood').post(async (req, res) => {
+    // update the lastFed field in the database
     await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
+    // update the food attribute and the pet session cookie
     req.session.pet = await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
-
-    req.session.pet.lastFed = parseInt(req.body.date)
-    req.session.pet.food = parseInt(req.body.foodLevel)
-
     res.end();
 })
 
+// POST request to 'home/updatePetHat', called in an ajax request in home page when the hat is changed
+router.route('/updatePetHat').post(async (req, res) => {
+    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "hat", req.body.hat, true)
+    res.end()
+})
+
+// POST request to 'home/store/:id'
 router.route('/store/:id').post((req, res) => {
+    // set the attributes of the store item that was chosen
     let title, price, imageSrc
-    console.log('id: ', req.params.id)
     switch (req.params.id) {
-        case "hat1":        //todo add hats
+        case "hat1":
             title = "Hat 1"
             price = 40
             imageSrc = "/public/designs/hat1.webp"
@@ -173,15 +195,18 @@ router.route('/store/:id').post((req, res) => {
         default:
             break;
     }
+
+    // render store item page
     res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: req.params.id})
 })
 
-
+// POST request to 'home/buyItem' 
 router.route('/buyItem').post((req, res) => {
-
+    // get item name and price from request
     itemName = Object.keys(req.body)[0]
     price = Object.values(req.body)[0]
 
+    // find the number of the item
     let itemNo
     if(itemName.includes('1'))
         itemNo = 1
@@ -190,12 +215,8 @@ router.route('/buyItem').post((req, res) => {
     if(itemName.includes('3'))
         itemNo = 3
 
-    const hat = itemName.includes('hat')
-    console.log(hat)
-    console.log(itemNo)
     // check if user already owns the item
-    console.log(req.session.user.backgroundsUnlocked)
-    console.log(req.session.user.hatsUnlocked)
+    const hat = itemName.includes('hat')
     let owned = false
     if(hat){
         for(h of req.session.user.hatsUnlocked){
@@ -215,6 +236,7 @@ router.route('/buyItem').post((req, res) => {
     let canPurchase = 
     req.session.user.points >= price ? true : false
 
+    // set the attributes to display
     switch (itemName) {
         case "hat1":
             itemName = "Hat 1"
@@ -238,16 +260,17 @@ router.route('/buyItem').post((req, res) => {
             break;
     }
 
+    // render the purchase page
     res.render('purchase', {itemName, price, owned, canPurchase,  userPoints: req.session.user.points})
 })
 
+// POST request to 'home/purchaseItem'
 router.route('/purchaseItem').post(async (req, res) => {
-    console.log(req.body)
-    // console.log(req.session)
+    // get item name and price from request
     const itemName = req.body.item
     const price = parseInt(req.body.price)
-    console.log(itemName, price)
 
+    // find the number of the item
     let itemNo
     if(itemName.includes('1'))
         itemNo = 1
@@ -256,19 +279,23 @@ router.route('/purchaseItem').post(async (req, res) => {
     if(itemName.includes('3'))
         itemNo = 3
 
+    // subtract the points the item cost from the points the user has
     let status = await userData.addPoints(req.session.user.id, req.session.user.username, -price)
     status = await userData.giveItemToUser(req.session.user.id, itemNo, itemName.includes('Hat'))
-    console.log(status)
+
+    // update the user session cookie
     req.session.user.points = status.points
     req.session.user.hatsUnlocked = status.hatsUnlocked
     req.session.user.backgroundsUnlocked = status.backgroundsUnlocked
     res.end()
 })
 
+// POST request to 'home/equipItem'
 router.route('/equipItem').post(async (req, res) => {
-    console.log(req.body)
+    // get item name from request
     const itemName = req.body.item
     
+    // find the number of the item
     let itemNo
     if(itemName.includes('1'))
         itemNo = 1
@@ -277,15 +304,17 @@ router.route('/equipItem').post(async (req, res) => {
     if(itemName.includes('3'))
         itemNo = 3
 
+    // check if the item is a hat
     if(itemName.includes('Hat')){
-        req.session.hat = itemNo
-        await petData.updateHat(req.session.user.id, itemNo)
+        req.session.pet.hat = itemNo // update pet session cookie
+        await petData.updateHat(req.session.user.id, itemNo) // update pet in the databse
     }
+    // if not it is a background
     else{
-        req.session.user.background = itemNo
-        await userData.updateBackground(req.session.user.id, itemNo)
+        req.session.user.background = itemNo // update user session cookie
+        await userData.updateBackground(req.session.user.id, itemNo) // update user in the database
     }
-    console.log(req.session)
+
     res.end()
 })
 

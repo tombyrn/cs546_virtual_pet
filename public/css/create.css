@@ -30,3 +30,7 @@ form {
 input {
     margin: 5%;
 }
+
+label {
+    margin: 1%;
+}
