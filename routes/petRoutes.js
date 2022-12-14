@@ -2,6 +2,7 @@ const router = require('express').Router()
 const userCollection = require('../config/mongoCollections').users
 const petData = require('../data').pets
 const userData = require('../data').users
+const hangmanGameDate = require('../data').hangmanGameDate
 
 router.use('/', (req, res, next) => {
     if (!req.session.user /*|| !req.session.pet*/) {
@@ -81,14 +82,36 @@ router.route('/createPet').get((req, res) => {
     return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
 })
 
+// // GET request to 'home/play/simon'
+// router.route('/play/simon').get((req, res) => {
+//     res.render('simon', {title: "Simon"})
+// })
+
+// // GET request to 'home/play/hangman'
+// router.route('/play/hangman').get((req, res) => {
+//     res.render('hangman', {title: "Hangman"})
+// })
+
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon', {title: "Simon"})
+    res.render('simon')
 })
 
 // GET request to 'home/play/hangman'
 router.route('/play/hangman').get((req, res) => {
-    res.render('hangman', {title: "Hangman"})
+    res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: hangmanGameDate.word})
+})
+// GET request to 'home/play/hangman'
+router.route('/').get((req, res) => {
+    res.render('choosegame')
+})
+
+// GET request to 'home/play/hangman'
+router.route('/gethint').get((req, res) => {
+    let select_word  = req.query.answertext;
+    let allwords = hangmanGameDate.words;
+    let hint =  allwords.get(select_word);
+    res.send(hint).status(200);
 })
 
 router.route('/getPetInfo').get(async (req, res) => {

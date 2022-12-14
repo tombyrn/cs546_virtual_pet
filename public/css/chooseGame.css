@@ -1,4 +1,4 @@
-* , .container{
+/* * , .container{
     margin: 0;
     padding: 0;
     width: 100%;
@@ -31,4 +31,22 @@
     width: 100px;
     height: 100px;
     border: purple dashed;
-}
+} */
+
+body {
+    background-color: lightcyan;
+    }
+    .center {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10%;
+    }
+    .center1 {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    

@@ -2,11 +2,16 @@ const express = require('express')
 const app = express()
 const configRoutes = require('./routes')
 const configListener = require('./listener')
+//
+const path = require("path");
+//parse data into gethint
+const bodyParser = require("body-parser");
+const routes = require("./routes/petRoutes.js");
+const { engine } = require("express-handlebars");
+//
 
 const session = require('express-session')
 const exphbs = require('express-handlebars')
-
-
 
 app.use(session({
     name: 'AuthCookie',
@@ -33,6 +38,33 @@ app.use((req, res, next) => {
     console.log(`[${timestamp}]: ${method} ${route} (${authenticated})`);
     next();
 });
+
+//games 
+app.use(express.static(path.join(__dirname, "public")));
+// view engine setup
+app.set("views", path.join(__dirname, "views"));
+
+app.engine(
+  "handlebars",
+  engine({
+    extname: ".handlebars",
+    defaultLayout: "main",
+    helpers: {
+      times: function (n, block) {
+        var accum = "";
+        for (var i = 0; i < n; ++i) accum += block.fn(i);
+        return accum;
+      },
+    },
+  })
+);
+app.set("view engine", "handlebars");
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use("/", routes);
+//
 
 configRoutes(app);
 configListener();

@@ -1,29 +1,15 @@
-
-    <button id="simon" type="button" >
-        Simon
+<form action="get">
+  <div class="center">
+    <h1>Welcome to game studio</h1>
+  </div>
+  <div class="center1">
+     <button  class="btn btn-primary" type="submit" formaction="/home/play/simon">
+      Play Simon
+    </button> &nbsp;&nbsp;&nbsp;
+    <button  class="btn btn-primary" type="submit" formaction="/home/play/hangman">
+      Play Hangman
     </button>
+  </div>
+</form>
 
-    <button id="hangman" type="button">
-        Hangman
-    </button>
-
-    <button id="back" type="button">
-        Back
-    </button>
-
-
-<script>
-    backButton = document.getElementById("back")
-    simonButton = document.getElementById("simon")
-    hangmanButton = document.getElementById("hangman")
-
-    backButton.onclick = () => {
-        window.location.replace('/home')
-    }
-    simonButton.onclick = () => {
-        window.location.replace('/home/play/simon')
-    }
-    hangmanButton.onclick = () => {
-        window.location.replace('/home/play/hangman')
-    }
-</script>
+<link rel="stylesheet" type="text/css"  href="/css/chooseGame.css">
