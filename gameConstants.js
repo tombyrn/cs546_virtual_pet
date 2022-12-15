@@ -34,13 +34,11 @@ module.exports = {
             food: 0,
             cleanliness: 20,
             happiness: 5,
-            //TODO: Rest cost for cleaning?
             rest: -5
         },
         play: {
             food: 0,
             cleanliness: -10,
-            //TODO: Static happiness reward? Or dynamic from performance?
             happiness: 20,
             rest: -15
         }
