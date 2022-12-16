@@ -1,0 +1,35 @@
+.pen {
+    border: dashed purple thick;
+    margin: 2%;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    box-sizing: border-box;
+    
+}
+.container {
+    border: solid black thick;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.petContainer {
+    border: dotted red thick;
+    box-sizing: border-box;
+    width: 100%;
+    height: 80%;
+    padding: 100px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.dirtOnPet{
+    position: absolute;
+}
