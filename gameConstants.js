@@ -3,9 +3,9 @@ module.exports = {
         // Defines highest and lowest numbers possible for pet design, background, and hat.
         min_design: 1,
         max_design: 3,
-        min_bg: 1,
+        min_bg: 0,
         max_bg: 3,
-        min_hat: 1,
+        min_hat: 0,
         max_hat: 3
     },
     // decaySettings: {

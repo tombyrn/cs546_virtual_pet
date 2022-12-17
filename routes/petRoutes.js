@@ -76,11 +76,11 @@ router.route('/createPet').post( async (req, res) => {
     // if no design or name is specified throw error (todo: make more sophisticated error handling)
     let design = xss(req.body.design);
     if(!design)
-        throw 'Error: No design input chosen.'
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: 'You need to choose a pet design'});
     design = validateDesignNumber(Number(design));
     let name = xss(req.body.name);
     if(!name)
-        throw 'Error: No name input chosen.'
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
     name = validateName(name);
 
     const petId = await petData.createPet(xss(req.session.user.id), {name: name, design: design})
