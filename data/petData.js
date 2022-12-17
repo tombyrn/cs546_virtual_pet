@@ -55,9 +55,31 @@ const createPet = async (
     if (!status.acknowledged || !status.insertedId)
         throw 'Error: Could not add pet to database'
 
-    // returns object of {petId: ObjectId}
-    return status.insertedId;
+    // returns object of {petId: string (object id)}
+    return status.insertedId.toString();
 
+}
+
+// takes a user id and a pet id and adds the pet id to the users petId field in the database
+const givePetToUser = async (
+    userId, petId
+) => {
+    userId = validateIdString(userId);
+    petId = validateIdString(petId);
+
+    // Verify that user and pet exist (can be found in database).
+    const user = await userData.getUserById(userId);
+    const pet = await getPetById(petId);
+
+    // updates the user's petId to the ObjectId of the newly created pet
+    const userCollection = await users();
+    const status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {"petId": ObjectId(petId)}})
+
+    // fails if error adding petId to user
+    if (!status.acknowledged || !status.modifiedCount)
+        throw 'Error: Could not add pet to database'
+
+    return status
 }
 
 const getPetById = async (
@@ -65,7 +87,7 @@ const getPetById = async (
 ) => {
     petId = validateIdString(petId);
     const petCollection = await pets();
-    const pet = await petCollection.findOne({_id: ObjectId(id)});
+    const pet = await petCollection.findOne({_id: ObjectId(petId)});
     if (!pet) {
         throw 'Error: No pet found with this ID.';
     }
@@ -192,13 +214,13 @@ const petCollectionDecay = async (
     
     // Decay all properties
     const petCollection = await pets();
-    const decayStatus = await petCollection.updateMany({}, {$set: {
+    const decayStatus = await petCollection.updateMany({}, [{$set: {
         lastUpdated: Date.now(),
-        food: Math.max(0, Math.min(100, $food + foodDecay)),
-        cleanliness: Math.max(0, Math.min(100, $cleanliness + cleanDecay)),
-        happiness: Math.max(0, Math.min(100, $happiness + happyDecay)),
-        rest: Math.max(0, Math.min(100, $rest + restGrowth))
-    }});
+        food: Math.max(0, Math.min(100, '$food' + foodDecay)),
+        cleanliness: Math.max(0, Math.min(100, '$cleanliness' + cleanDecay)),
+        happiness: Math.max(0, Math.min(100, '$happiness' + happyDecay)),
+        rest: Math.max(0, Math.min(100, '$rest' + restGrowth))
+    }}]);
     if (!decayStatus.acknowledged){
         throw 'Error: Could not decay pets.'
     };

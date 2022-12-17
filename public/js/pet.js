@@ -14,6 +14,9 @@ const profileButton = document.getElementById('profileButton')
 const hatSelector = document.getElementById('hatSelector')
 const bgSelector = document.getElementById('bgSelector')
 
+// How often (in ms) the page should update the pet's stat bars
+const statUpdates = 1 * 1000
+
 const pen = document.getElementById('pen')
 
 // set parameters for two.js canvas
@@ -172,7 +175,7 @@ addEventListener("resize", (event) => {
 // pings server every 30 seconds to update the pet info
 setInterval(() => {
     updateStatus()    
-}, 30000)
+}, statUpdates)
 
 // ajax get request to server that returns the pets information and updates the status bars accordingly
 async function updateStatus(){

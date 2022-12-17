@@ -1,5 +1,4 @@
 const users = require('../config/mongoCollections').users
-const petData = require('./petData');
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 const {ObjectId} = require('mongodb');
@@ -188,28 +187,6 @@ const updateUserInfo = async(
 
 }
 
-// takes a user id and a pet id and adds the pet id to the users petId field in the database
-const givePetToUser = async (
-    userId, petId
-) => {
-    userId = validateIdString(userId);
-    petId = validateIdString(petId);
-
-    // Verify that user and pet exist (can be found in database).
-    const user = await getUserById(userId);
-    const pet = await petData.getPetById(petId);
-
-    // updates the user's petId to the ObjectId of the newly created pet
-    const userCollection = await users();
-    const status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {"petId": ObjectId(petId)}})
-
-    // fails if error adding petId to user
-    if (!status.acknowledged || !status.modifiedCount)
-        throw 'Error: Could not add pet to database'
-
-    return status
-}
-
 // updates either the backgroundsUnlocked array or the hatsUnlocked array of the user depending on hat === true
 // itemNo should be the number of the item to add to the array (eg. Background 3 -> itemNo = 3, Hat 1 -> itemNo = 1)
 const giveItemToUser = async (
@@ -290,7 +267,6 @@ module.exports = {
     getUserByUsername, 
     addPoints, 
     updateUserInfo, 
-    givePetToUser,
     giveItemToUser, 
     updateBackground
 };
