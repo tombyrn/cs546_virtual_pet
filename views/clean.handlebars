@@ -1,12 +1,25 @@
-<h1>Clean Page</h1>
+<div class="container">
+    <h1 id="title">Clean Page</h1>
 
-<button id="back">
-    back
-</button>
+    <div class="petContainer">
+        <div id="pen" class="pen">
+            {{!-- p5.min.js creates a canvas in this div --}}
+            <div id="dirtOnPet" class="dirtOnPet">
+            </div>
+        </div>
+        <div>
+            <p id="description">Time to clean your pet!</p>
+            <p id="description">Try to clear as many brown spots as you can within 15 seconds.</p>
+            {{!-- <button id="backHomeButton" type="button">back</button>   --}}
+        </div> 
+    </div>
 
-<script>
-    backButton = document.getElementById("back")
-    backButton.onclick = () => {
-        window.location.replace('/home')
-    }
-</script>
+    <div class="buttonContainer">
+        <button id="backHomeButton" type="button">back</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script src="/public/js/two.min.js"></script>
+<script src="/public/js/p5.min.js"></script>
+<script src="/public/js/clean.js"></script>

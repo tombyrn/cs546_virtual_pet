@@ -25,10 +25,11 @@ router.route('/play').get((req, res) => {
     res.render('chooseGame', {title: 'Choose Game', style: '/public/css/chooseGame.css'})
 })
 
-// POST request to 'home/clean'
+// GET request to 'home/clean'
 router.route('/clean').get((req, res) => {
-    res.render('clean', {title: 'Clean'})
+    res.render('clean', {title: 'Clean', style: '/public/css/clean.css'})
 })
+
 
 // POST request to 'home/store'
 router.route('/store').get((req, res) => {
@@ -38,8 +39,8 @@ router.route('/store').get((req, res) => {
 // POST request to 'home/profile'
 router.route('/profile').get( async (req, res) => {
     
+    req.session.pet = await petData.getPetAttributes(req.session.user.id)
     const pet = req.session.pet
-
     // throw error if pet doesn't exist
     if(!pet)
         throw 'Error: no pet session cookie (petRoutes.js line45)'
@@ -135,7 +136,7 @@ router.route('/getPetInfo').get(async (req, res) => {
 
 // GET request to 'home/petDeath'
 router.route('/petDeath').get(async (req, res) => {
-    res.render('death', {title: ':('})
+    res.render('death', {title: ':(', style: '/public/css/death.css'})
 })
 
 // POST request to 'home/updatePetFood', called in an ajax request in home page when the pet is fed
@@ -147,11 +148,20 @@ router.route('/updatePetFood').post(async (req, res) => {
     res.end();
 })
 
+// POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
+router.route('/updatePetCleanliness').post(async (req, res) => {
+    // update the cleanliness field in the database
+    await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    
+    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    res.end();
+});
+
 // POST request to 'home/updatePetHat', called in an ajax request in home page when the hat is changed
 router.route('/updatePetHat').post(async (req, res) => {
     req.session.pet = await petData.updatePetAttribute(req.session.user.id, "hat", req.body.hat, true)
     res.end()
-})
+});
 
 // POST request to 'home/store/:id'
 router.route('/store/:id').post((req, res) => {
@@ -197,7 +207,7 @@ router.route('/store/:id').post((req, res) => {
     }
 
     // render store item page
-    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: req.params.id})
+    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: req.params.id, style: '/public/css/storeItems.css'})
 })
 
 // POST request to 'home/buyItem' 

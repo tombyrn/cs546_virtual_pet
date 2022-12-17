@@ -1,5 +1,5 @@
 * {
-    background-color: antiquewhite;
+    background-color: #faebd7;
 }
 
 .main-container{
@@ -52,7 +52,7 @@ a{
 }
 
 a:link {
-    color: seagreen;
+    color: #025d2e;
     text-decoration-line: none;
 }
 
@@ -69,5 +69,5 @@ a:visited {
 h1{
     font-size: 70px;
     font-style: italic;
-    color:seagreen;
+    color:#025d2e;
 }

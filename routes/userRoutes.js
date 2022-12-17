@@ -145,7 +145,7 @@ router.route('/register').post(async (req, res) => {
 router.route('/logout').get((req, res) => {
     if (req.session.user){
         req.session.destroy();
-        return res.render('logout', {title: 'Logout'})
+        return res.render('logout', {title: 'Logout', style: "/public/css/landing.css"})
     } else {
         return res.redirect('/login')
     }

@@ -19,12 +19,15 @@
 h1 {
     border: green dashed;
     width: 100%;
-    height: 10%;
+    height: 5%;
+    text-align: center;
 }
 
 .itemContainer {
     display: flex;
     flex-direction: row;
+    width: 100%;
+    justify-content: center;
 }
 
 .hatContainer, .bgContainer {
@@ -35,13 +38,18 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 3%;
 }
 
-.hat, .bg, label {
+.hat, .bg{
     width: 20%;
     height: 10%;
+    margin-bottom: 5%;
 }
-
+label {
+    width: 20%;
+    height: 5%;
+}
 #returnForm {
     border: red dashed;
     width: 100%;
