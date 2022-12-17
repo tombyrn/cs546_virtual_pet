@@ -1,16 +1,20 @@
-<h1>{{title}}</h1>
+<div class="container">
+    <h1>{{title}}</h1>
 
-<form method="post" action='/home/buyItem' >
-    <img src={{imageSrc}} alt={{alt}} width="600" height="400">
-    <p>You have {{points}} points</p>
-    <p>Purchase for {{price}} points</p>
-    <button id="buy" name={{name}} value={{price}}>
-        Buy
-    </button>
-    <button id="back" type="button">
-        back
-    </button>
-</form>
+    <div id="item">
+        <form method="post" action='/home/buyItem' >
+            <img src={{imageSrc}} alt={{alt}} width="600" height="400">
+            <p>You have {{points}} points</p>
+            <p>Purchase for {{price}} points</p>
+            <button id="buy" name={{name}} value={{price}}>
+                Buy
+            </button>
+            <button id="back" type="button">
+                back
+            </button>
+        </form>
+    </div>
+</div>
 
 <script>
     let back = document.getElementById('back')

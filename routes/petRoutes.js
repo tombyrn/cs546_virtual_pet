@@ -39,8 +39,8 @@ router.route('/store').get((req, res) => {
 // POST request to 'home/profile'
 router.route('/profile').get( async (req, res) => {
     
+    req.session.pet = await petData.getPetAttributes(req.session.user.id)
     const pet = req.session.pet
-
     // throw error if pet doesn't exist
     if(!pet)
         throw 'Error: no pet session cookie (petRoutes.js line45)'
@@ -136,7 +136,7 @@ router.route('/getPetInfo').get(async (req, res) => {
 
 // GET request to 'home/petDeath'
 router.route('/petDeath').get(async (req, res) => {
-    res.render('death', {title: ':('})
+    res.render('death', {title: ':(', style: '/public/css/death.css'})
 })
 
 // POST request to 'home/updatePetFood', called in an ajax request in home page when the pet is fed
@@ -207,7 +207,7 @@ router.route('/store/:id').post((req, res) => {
     }
 
     // render store item page
-    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: req.params.id})
+    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: req.params.id, style: '/public/css/storeItems.css'})
 })
 
 // POST request to 'home/buyItem' 

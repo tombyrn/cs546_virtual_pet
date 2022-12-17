@@ -9,7 +9,7 @@
     align-items: center;
 }
 * {
-    background-color: antiquewhite;
+    background-color: #faebd7;
 }
 #description{
     padding: 50px;
@@ -28,11 +28,11 @@
 h1{
     font-size: 70px;
     font-style: italic;
-    color:seagreen;
+    color:#025d2e;
 }
 
 a:link {
-    color: seagreen;
+    color: #025d2e;
     text-decoration-line: none;
 }
 
@@ -52,4 +52,9 @@ a:visited {
 
 div {
     text-align: center;
+}
+
+#logout{
+    margin-top: 10%;
+    margin-bottom: 5%;
 }

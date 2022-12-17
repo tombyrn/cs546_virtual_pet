@@ -1,6 +1,7 @@
 * {
     margin: 0%;
     padding: 0%;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .container {
@@ -8,16 +9,34 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    border: solid black thick;
+    width: 100%;
+    height: 100%;
 }
 
 h1 {
-    margin: 5%;
-    border: dashed green;
+    margin-top: 5%;
+    border: dotted red thick;
+    padding:10px;
 }
 
 #petStats {
-    border: dotted dodgerblue;
+    border: dotted dodgerblue thick;
     list-style-type: none;
     padding: 5%;
-    margin: 0%;
+    margin: 5%;
+    font-size: 20px;
+}
+
+.links{
+    border: dotted green thick;
+    width: 100%;
+    height: 25%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    padding: 1%;
 }

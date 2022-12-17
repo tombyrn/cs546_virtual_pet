@@ -1,12 +1,21 @@
 <div class="container">
-    <h1>Clean Page</h1>
+    <h1 id="title">Clean Page</h1>
+
     <div class="petContainer">
         <div id="pen" class="pen">
             {{!-- p5.min.js creates a canvas in this div --}}
             <div id="dirtOnPet" class="dirtOnPet">
             </div>
         </div>
-        <button id="backHomeButton" type="button">back</button>   
+        <div>
+            <p id="description">Time to clean your pet!</p>
+            <p id="description">Try to clear as many brown spots as you can within 15 seconds.</p>
+            {{!-- <button id="backHomeButton" type="button">back</button>   --}}
+        </div> 
+    </div>
+
+    <div class="buttonContainer">
+        <button id="backHomeButton" type="button">back</button>
     </div>
 </div>
 
