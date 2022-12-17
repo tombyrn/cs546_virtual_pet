@@ -121,6 +121,7 @@ const checkUser = async (
         throw errors
     }
 
+    const userCollection = await users();
     const user = await getUserByUsername(username, 'Error: Either the username or password is invalid');
   
     // make sure the password matches the hashed password in the database
@@ -128,7 +129,7 @@ const checkUser = async (
     if(match)
         return {
             authenticatedUser: true, 
-            userInfo: await userCollection.findOne({_id: user._id})
+            userInfo: user
         }
     else
         throw 'Error: Either the username or password is invalid'

@@ -8,7 +8,6 @@ const userData = require('./userData');
 
 const {validateIdString, validateName, validateDesignNumber} = require('../helpers');
 const {decaySettings, actionRewards} = require('../gameConstants');
-const { date } = require('yup');
 
 // petProps should be an object of {name: string,  design: number}
 const createPet = async (
@@ -404,14 +403,15 @@ const updateHat = async (
 const calculateHealth = async (
     userId
 ) => {
-    const petCollection = await pets()
+    userId = validateIdString(userId);
 
-    const pet = await petCollection.findOne({userId: ObjectId(userId)})
+    const pet = await getPetAttributes(userId);
 
     let health
     if(pet)
         health =  Math.floor((pet.cleanliness + pet.happiness + pet.food + pet.rest) / 4)
 
+    const petCollection = await pets()
     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: {health}})
     if(!status.acknowledged)
         throw 'Error: health not updated in database'
