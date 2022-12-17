@@ -62,7 +62,7 @@
     notifSpan.textContent = select_word;
     notifContent.textContent = `You ${msg}`;
     if(msg === 'won'){
-      await ($.post('/addUserPoints', {points: 100}))
+      //await ($.post('/addUserPoints', {points: 100}))
       notifContent.textContent += "\nYou earned 100 points!"
     }
   };
