@@ -130,15 +130,16 @@ const petAction = async (
     }
 
     // Assemble the pet update content. 
+    const now = Date.now();
     const updates = {
-        lastUpdated: Date.now()
+        lastUpdated: now
     };
     if (action === 'feed'){
-        updates.lastFed = Date.now();
+        updates.lastFed = now;
     } else if (action === 'clean'){
-        updates.lastCleaned = Date.now();
+        updates.lastCleaned = now;
     } else if (action === 'play'){
-        updates.lastPlayed = Date.now();
+        updates.lastPlayed = now;
     }
     for (let property in baseRewards){
         updates[property] = Math.max(0, Math.min(100, pet[property] + baseRewards[property]));
