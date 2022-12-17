@@ -1,7 +1,6 @@
 <h1>Simon Memory Game</h1>
-<h2></h2>
 <button type="button" class="start btn btn-lg">Start</button>
-<div class="main-container">
+<div class="main-container" style="display: none;">
     <div class="main-row">
         <div type="button" id="green" class="button green">
         </div>
@@ -21,7 +20,7 @@
         Back To Game studio
     </button>
 </form>
-
+<link rel="stylesheet" type="text/css" href="/css/simon.css">
 <script>
     var gamePattern = [];
 
@@ -79,27 +78,28 @@
             nextSequence();
             started = true;
             $(".start").remove();
+            document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
         }
     });
 
-
-
-    async function checkAnswer(currentLevel) {
+    function checkAnswer(currentLevel) {
         if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
             if (gamePattern.length === userClickedPattern.length) {
                 if (level == 5) {
-                    $("h1").text("Congrats!!!You have won");
+                    $("h1").text("Congrats!.You have won");
                     $("h2").text("You earned 50 points");
                     await ($.post('/addUserPoints', {points: 50}))
-                    started = false;
+                        started = false;
                     level = 0;
                     $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
+                    document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
                     $(".restart").on("click", function () {
                         if (!started) {
                             $("h1").text("Level :" + level);
                             nextSequence();
                             started = true;
                             $(".restart").remove();
+                            document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
                         }
 
                     })
@@ -115,7 +115,8 @@
         }
         else {
             $("body").addClass("game-over")
-            $("h1").text("Game Over, Press Any Key to Restart");
+            $("h1").text("Game Over! Press Any Key to Restart");
+             document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
             var sound2 = new Audio("/sounds/wrong.mp3");
             sound2.play();
             setTimeout(function () {
@@ -124,7 +125,6 @@
             if (c === 1) {
                 $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
                 c = 0;
-                // detect mouse click on 'Restart' button
                 $(".restart").on("click", function () {
                     if (!started) {
                         $("h1").text("Level :" + level);

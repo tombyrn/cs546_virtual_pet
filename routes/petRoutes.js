@@ -92,16 +92,19 @@ router.route('/createPet').get((req, res) => {
 
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon', {title: 'Simon', style: '/public/css/simon.css'})
+    res.render('simon')
 })
 
 // GET request to 'home/play/hangman'
 router.route('/play/hangman').get((req, res) => {
-    res.render('hangman', {title: 'Hangman', style: '/public/css/hangman.css', alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: hangmanGameDate.word})
+    const word_list = [...hangmanGameDate.words.keys()];
+    let word = word_list[Math.floor(Math.random() * word_list.length)];
+    console.log(word)
+    res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: word})
 })
 // GET request to game studio
 router.route('/choose').get((req, res) => {
-    res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'})
+    res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'});
 })
 
 // GET request to get hint
