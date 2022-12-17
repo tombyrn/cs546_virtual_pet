@@ -192,10 +192,12 @@ router.route('/updatePetWhenPlayedWith').post(async (req, res) => {
 
 // POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
 router.route('/updatePetCleanliness').post(async (req, res) => {
+    const pet = await petData.getPetAttributes(xss(req.session.user.id));
+    const cleanStatus = await petData.petAction(pet._id, 'clean');
+
     // update the cleanliness field in the database
-    await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
-    
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    // req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
     res.end();
 });
 
@@ -317,6 +319,7 @@ router.route('/buyItem').post((req, res) => {
 // POST request to 'home/purchaseItem'
 router.route('/purchaseItem').post(async (req, res) => {
     // get item name and price from request
+    //TODO: Add additional validation for name (string) and price (number)
     const itemName = xss(req.body.item)
     const price = parseInt(xss(req.body.price))
 

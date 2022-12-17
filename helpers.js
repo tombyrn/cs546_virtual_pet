@@ -116,6 +116,7 @@ function validateDesignNumber(designNumber) {
 }
 
 function validateHatNumber(hatNumber) {
+    // TODO: Verify if this and other design numbers should or should not permit 0. 
     if(!hatNumber){throw 'Error: Hat number must be provided.'}
     if (typeof hatNumber !== 'number' || !Number.isInteger(hatNumber)){
         throw 'Error: Hat number must be an integer.';
