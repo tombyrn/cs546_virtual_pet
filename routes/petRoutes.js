@@ -99,7 +99,7 @@ router.route('/play/simon').get((req, res) => {
 router.route('/play/hangman').get((req, res) => {
     const word_list = [...hangmanGameDate.words.keys()];
     let word = word_list[Math.floor(Math.random() * word_list.length)];
-    console.log(word)
+    // console.log(word)
     res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: word})
 })
 // GET request to game studio

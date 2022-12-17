@@ -20,9 +20,6 @@
   <h3>Remaining Lives: <span id="lives">{{lives}}</span></h3>
   <div class="row hint-div">
     <button class="hint-btn btn btn-primary" style="display: inline-block;float:right;">Hint</button>
-    {{!-- <form method="get" url="/" style="display: inline-block;float:right;margin-left: 80%;">
-      <button type="submit" class="btn btn-primary" style="display: inline-block;float:right">Reset</button>
-    </form> --}}
     &nbsp; &nbsp;
     <form method="get" url="/home/play">
       <button id="game2" class="btn btn-primary" style="display: inline-block;margin-left:800px" type="submit"
@@ -36,7 +33,7 @@
   <h2>Game Over !!</h2>
   <h3 class="notif-content">You won</h3>
   <h4>Correct Word: <span class="notif-span"></span></h4>
-  <form method="get" url="/play/hangman">
+  <form method="get" url="/home/play/hangman">
     <button type="submit" class="notif-btn btn btn-primary" style="display: inline-block;"
       formaction="/home/play/hangman">Play Again</button>
 </div>
@@ -68,7 +65,6 @@
       await ($.post('/addUserPoints', {points: 100}))
       notifContent.textContent += "\nYou earned 100 points!"
     }
-
   };
 
   const decreaseLife = function () {
@@ -137,4 +133,4 @@
   });
 
 </script>
-<link rel="stylesheet" type="text/css" href="/css/hangman.css">
+<link rel="stylesheet" type="text/css" href="/public/css/hangman.css">
