@@ -33,7 +33,16 @@ const words = new Map([
   ["cat", "The cuddly domesticated decendent of big cats."],
   ["cryptography", "Method of encrypting text."],
   ["programming", "Pocess of instructing the computer to perform a series of operations."],
-  ["computer", "Comes in different shapes and sizes, used to watch netflix, write code, write emails."]
+  ["computer", "Comes in different shapes and sizes, used to watch netflix, write code, write emails."],
+  ["executioner", "Synonym for the game name."],
+  ["starbucks", "Famous chain of coffeehouses."],
+  ["table", "A furniture!."],
+  ["chocolate", "A dark desert relished by children and adults alike."],
+  ["plastic", "A leading cause of climate crisis."],
+  ["brush", "Something that is used everyday first thing in the morning."],
+  ["sommelier", "To become one you have to pass aruguable the toughest certification on the planet!."],
+  ["eyes", "Can you see the screen? Think about it!."],
+  ["mouse", "A name used for both an animal and computer accessory."]
 ]);
 
 module.exports = {alphabets,lives,words}
