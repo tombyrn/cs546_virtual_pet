@@ -76,7 +76,29 @@ const givePetToUser = async (
 
     // fails if error adding petId to user
     if (!status.acknowledged || !status.modifiedCount)
-        throw 'Error: Could not add pet to database'
+        throw 'Error: Could not add pet to user.'
+
+    return status
+}
+
+// takes a user id and clears the users petId field in the database
+const removePetFromUser = async (
+    userId
+) => {
+    userId = validateIdString(userId);
+
+    // Verify that user exists (can be found in database).
+    const user = await userData.getUserById(userId);
+
+    // updates the user's petId to null
+    let status;
+    if (user.petId !== null){
+        const userCollection = await users();
+        status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {"petId": null}})
+        // fails if error removing petId from user
+        if (!status.acknowledged || !status.modifiedCount)
+            throw 'Error: Could not remove pet from user.'
+    }
 
     return status
 }
@@ -442,6 +464,7 @@ const calculateHealth = async (
 module.exports = {
     createPet, 
     givePetToUser, 
+    removePetFromUser, 
     getPetById,
     getPetAttributes, 
     petAction, 

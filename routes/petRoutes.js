@@ -7,12 +7,30 @@ const hangmanGameDate = require('../data').hangmanGameDate
 const {validateName, validateDesignNumber} = require('../helpers')
 const xss = require('xss');
 
-router.use('/', (req, res, next) => {
+// This middleware checks the authenticated user, and checks the status of the pet
+// (and updates the pet cookie accordingly). It also handles death reroutes when necessary. 
+// From this middleware, we can assume that req.session.user and req.session.pet exist in most cases. 
+router.use(async (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
-    } else {
-        next();
+    } else if (req.url !== '/petDeath' && req.url !== '/createPet'){
+        // Need to check if pet has died or not (and update pet session cookie).
+        let pet = {};
+        try {
+            pet = await petData.getPetAttributes(req.session.user.id);
+        } catch (e) {
+            if (e === 'Error: No pet found with this user ID.') {
+                // Pet is dead, set pet cookie back to undefined. 
+                req.session.pet = undefined;
+                return res.redirect('/home/petDeath');
+            } else {
+                // Not expected to trigger
+                return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+            }
+        }
+        req.session.pet = pet;
     }
+    next();
 });
 
 // GET request to 'home'
@@ -41,24 +59,7 @@ router.route('/store').get((req, res) => {
 
 // POST request to 'home/profile'
 router.route('/profile').get( async (req, res) => {
-    try{
-        const pet = await petData.getPetAttributes(req.session.user.id);
-    } catch (e) {
-        if (e === 'Error: No pet found with this user ID.'){
-            // This user had a pet, but it died. 
-            return res.redirect('/home/petDeath')
-        } else {
-            // Some other error has occurred. 
-            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
-        }
-    }
-    req.session.pet = pet
-
-    //TODO: Return here after doing death stuff..
-    //And actually, get all of this cookie-ry squared away. 
-    // throw error if pet doesn't exist
-    if(!pet)
-        throw 'Error: no pet session cookie (petRoutes.js line45)'
+    const pet = req.session.pet;
 
     // presenting date on the screen
     pet.lastFed = new Date(Number(pet.lastFed)).toDateString();
@@ -85,8 +86,22 @@ router.route('/profile').get( async (req, res) => {
 
 // POST request to 'home/createPet' 
 router.route('/createPet').post( async (req, res) => {
-    // if no design or name is specified throw error (todo: make more sophisticated error handling)
+    try {
+        // If user already has a pet, redirect back home
+        const pet = await petData.getPetAttributes(req.session.user.id);
+        return res.redirect('/home');
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.') {
+            // User doesn't have a pet, proceed with pet creation
+        } else {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+        }
+    }
+
+    // if no design or name is specified throw error
     let design = xss(req.body.design);
+    let name = xss(req.body.name);
     if(!design)
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: 'You need to choose a pet design'});
     try {
@@ -94,7 +109,6 @@ router.route('/createPet').post( async (req, res) => {
     } catch (e) {
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: e});
     }
-    let name = xss(req.body.name);
     if(!name)
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
     try {
@@ -104,13 +118,23 @@ router.route('/createPet').post( async (req, res) => {
     }
     
     const petId = await petData.createPet(req.session.user.id, {name: name, design: design})
-
     const status = await petData.givePetToUser(req.session.user.id, petId)
-    req.session.pet = await petData.getPetAttributes(req.session.user.id)
     res.redirect('/home')
 })
 
-router.route('/createPet').get((req, res) => {
+router.route('/createPet').get(async (req, res) => {
+    try {
+        // If user already has a pet, redirect back home
+        const pet = await petData.getPetAttributes(req.session.user.id);
+        return res.redirect('/home');
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.') {
+            // User doesn't have a pet, proceed with pet creation
+        } else {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+        }
+    }
     return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
 })
 
@@ -132,6 +156,7 @@ router.route('/play/hangman').get((req, res) => {
         hintword: word
     })
 })
+
 // GET request to game studio
 router.route('/choose').get((req, res) => {
     res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'});
@@ -171,7 +196,25 @@ router.route('/getPetInfo').get(async (req, res) => {
 
 // GET request to 'home/petDeath'
 router.route('/petDeath').get(async (req, res) => {
-    res.render('death', {title: 'Your Pet Has Died', style: '/public/css/death.css'})
+    try {
+        // Check if user's pet is still alive. If so, redirect back home. 
+        const pet = await petData.getPetAttributes(req.session.user.id);
+        return res.redirect('/home');
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.') {
+            // Pet is confirmed dead
+            try {
+                await petData.removePetFromUser(req.session.user.id);
+                return res.render('death', {title: 'Your Pet Has Died', style: '/public/css/death.css'});
+            } catch (e){
+                // Not expected to trigger
+                return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `${e}`})
+            }
+        } else {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+        }
+    }
 })
 
 router.route('/updatePetFood').post(async (req, res) => {

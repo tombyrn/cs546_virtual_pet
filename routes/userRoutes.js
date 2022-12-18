@@ -71,12 +71,6 @@ router.route('/login').post(async (req, res) => {
     // create express session if the user exists, and send to home page
     if(user.authenticatedUser){
         req.session.user = setUserSession(user.userInfo)
-        //TODO: Add try-catch for get pet attributes. 
-        //OR...is this check necessary if home paths are already death-protected by middleware?
-        req.session.pet = await petData.getPetAttributes(user.userInfo._id)
-        if(!req.session.pet){// if the pet cannot be found it was removed from database because it has died
-            return res.redirect('/home/petDeath')
-        } 
         return res.redirect('/home')
     }
     
@@ -157,7 +151,7 @@ router.route('/register').post(async (req, res) => {
     // create express session if the user is created, and send to pet creation
     if(user.insertedUser){
         req.session.user = setUserSession(user.userInfo)
-        return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
+        return res.redirect('/home/createPet');
     }
     
     // createUser did not return, but did not throw. Not expected to trigger
