@@ -38,11 +38,11 @@ function setPet(){
 }
 
 function setSprite(){
-    if(pet.design === "1")
+    if(pet.design === 1)
         sprite = green_sprite
-    if(pet.design === "2")
+    if(pet.design === 2)
         sprite = blue_sprite
-    if(pet.design === "3")
+    if(pet.design === 3)
         sprite = purple_sprite
 
     if(pet.hat != 0)

@@ -150,6 +150,7 @@ const addPoints = async(
         points: points
     }
 
+    const userCollection = await users();
     const updateInfo = await userCollection.updateOne({ username: username },{ $set: update });
     if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
 

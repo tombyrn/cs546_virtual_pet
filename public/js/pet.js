@@ -15,7 +15,11 @@ const hatSelector = document.getElementById('hatSelector')
 const bgSelector = document.getElementById('bgSelector')
 
 // How often (in ms) the page should update the pet's stat bars
-const statUpdates = 1 * 1000
+const statUpdates = 5 * 1000
+
+// What values the page will use to immediately update pet properties on feeding
+// Ideally these should be consistent with the gameConstants values
+const feedRewards = [20, -10, 5, 0]
 
 const pen = document.getElementById('pen')
 
@@ -82,11 +86,11 @@ function delay(time) {
 
 // sets the sprite according to the req.session.pet.design attribute in the user cookie
 function setSprite(){
-    if(pet.design === "1")
+    if(pet.design === 1)
         sprite = green_sprite
-    if(pet.design === "2")
+    if(pet.design === 2)
         sprite = blue_sprite
-    if(pet.design === "3")
+    if(pet.design === 3)
         sprite = purple_sprite
 
     if(pet.hat != 0)
@@ -126,10 +130,20 @@ feedButton.onclick = async () => {
     feedButton.disabled = true
 
     await feedAnimation()
+    
     // after the feed animation ends update the status
-    foodBar.value+=10;
-    if(foodBar.value > 100)
-        foodBar.value = 100
+    foodBar.value += feedRewards[0];
+    if(foodBar.value > 100) foodBar.value = 100
+    if(foodBar.value < 0) foodBar.value = 0
+    cleanlinessBar.value += feedRewards[1];
+    if(cleanlinessBar.value > 100) cleanlinessBar.value = 100
+    if(cleanlinessBar.value < 0) cleanlinessBar.value = 0
+    happinessBar.value += feedRewards[2];
+    if(happinessBar.value > 100) happinessBar.value = 100
+    if(happinessBar.value < 0) happinessBar.value = 0
+    restBar.value += feedRewards[3];
+    if(restBar.value > 100) restBar.value = 100
+    if(restBar.value < 0) restBar.value = 0
         
     feedButton.disabled = false
     // send new info to server

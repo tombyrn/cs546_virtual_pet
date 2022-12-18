@@ -213,19 +213,40 @@ const petCollectionDecay = async (
     
     // Decay all properties
     const petCollection = await pets();
-    const decayStatus = await petCollection.updateMany({}, [{$set: {
-        lastUpdated: Date.now(),
-        food: Math.max(0, Math.min(100, '$food' + foodDecay)),
-        cleanliness: Math.max(0, Math.min(100, '$cleanliness' + cleanDecay)),
-        happiness: Math.max(0, Math.min(100, '$happiness' + happyDecay)),
-        rest: Math.max(0, Math.min(100, '$rest' + restGrowth))
-    }}]);
-    if (!decayStatus.acknowledged){
-        throw 'Error: Could not decay pets.'
-    };
+    let status = await petCollection.updateMany({}, {$inc: {
+        food: foodDecay, 
+        cleanliness: cleanDecay,
+        happiness: happyDecay,
+        rest: restGrowth
+    }})
+    if (!status.acknowledged) throw 'Error: Could not decay pets.'
+
+    // Scan all pets to bring them back within min and max
+    status = await petCollection.updateMany({food: {$lt: 0}}, {$set: {food: 0}})
+    if (!status.acknowledged) throw 'Error: Could not fix min food.'
+    status = await petCollection.updateMany({food: {$gt: 100}}, {$set: {food: 100}})
+    if (!status.acknowledged) throw 'Error: Could not fix max food.'
+    status = await petCollection.updateMany({cleanliness: {$lt: 0}}, {$set: {cleanliness: 0}})
+    if (!status.acknowledged) throw 'Error: Could not fix min cleanliness.'
+    status = await petCollection.updateMany({cleanliness: {$gt: 100}}, {$set: {cleanliness: 100}})
+    if (!status.acknowledged) throw 'Error: Could not fix max cleanliness.'
+    status = await petCollection.updateMany({happiness: {$lt: 0}}, {$set: {happiness: 0}})
+    if (!status.acknowledged) throw 'Error: Could not fix min happiness.'
+    status = await petCollection.updateMany({happiness: {$gt: 100}}, {$set: {happiness: 100}})
+    if (!status.acknowledged) throw 'Error: Could not fix max happiness.'
+    status = await petCollection.updateMany({rest: {$lt: 0}}, {$set: {rest: 0}})
+    if (!status.acknowledged) throw 'Error: Could not fix min rest.'
+    status = await petCollection.updateMany({rest: {$gt: 100}}, {$set: {rest: 100}})
+    if (!status.acknowledged) throw 'Error: Could not fix max rest.'
+
+    // Set all pets as updated now.
+    status = await petCollection.updateMany({}, {$set: {
+        lastUpdated: Date.now()
+    }})
+    if (!status.acknowledged) throw 'Error: Could not update pet updated timestamps.'
 
     // Update HitZero for properties that have hit zero as a result of decay. 
-    checkAllNewZeroes();
+    await checkAllNewZeroes();
 
     // Check for deaths (properties spent too long at zero)
     const foodLimit = decaySettings.foodGrace * 24 * 60 * 60 * 1000;

@@ -8,8 +8,8 @@ const {validateName, validateDesignNumber} = require('../helpers')
 const xss = require('xss');
 
 router.use('/', (req, res, next) => {
-    if (!xss(req.session.user) /*|| !xss(req.session.pet)*/) {
-        return res.status(403).redirect('/login');
+    if (!req.session.user) {
+        return res.redirect('/login');
     } else {
         next();
     }
@@ -42,7 +42,7 @@ router.route('/store').get((req, res) => {
 // POST request to 'home/profile'
 router.route('/profile').get( async (req, res) => {
     
-    req.session.pet = await petData.getPetAttributes(xss(req.session.user.id))
+    req.session.pet = await petData.getPetAttributes(req.session.user.id)
     const pet = req.session.pet
     // throw error if pet doesn't exist
     if(!pet)
@@ -67,7 +67,7 @@ router.route('/profile').get( async (req, res) => {
         lastCleaned: pet.lastCleaned,
         lastPlayed: pet.lastPlayed,
         hat: pet.hat === "0" ? "none" : pet.hat,
-        background: xss(req.session.user.background)
+        background: req.session.user.background
     })
 })
 
@@ -83,10 +83,10 @@ router.route('/createPet').post( async (req, res) => {
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
     name = validateName(name);
 
-    const petId = await petData.createPet(xss(req.session.user.id), {name: name, design: design})
+    const petId = await petData.createPet(req.session.user.id, {name: name, design: design})
 
-    const status = await petData.givePetToUser(xss(req.session.user.id), petId)
-    req.session.pet = await petData.getPetAttributes(xss(req.session.user.id))
+    const status = await petData.givePetToUser(req.session.user.id, petId)
+    req.session.pet = await petData.getPetAttributes(req.session.user.id)
     res.redirect('/home')
 })
 
@@ -131,7 +131,7 @@ router.route('/getPetInfo').get(async (req, res) => {
     pet = await petData.getPetAttributes(req.session.user.id);
     // calculate the total health of the pet
     // TODO: Health system? Keep or no? 
-    pet = await petData.calculateHealth(xss(req.session.user.id));
+    pet = await petData.calculateHealth(req.session.user.id);
 
     // if the pet doesn't exist it has died
     if(pet === null || pet.health === NaN){
@@ -143,25 +143,21 @@ router.route('/getPetInfo').get(async (req, res) => {
     // send information back to home page to be displayed
     res.send({
         pet,
-        background: xss(req.session.user.background),
-        hatsUnlocked: xss(req.session.user.hatsUnlocked),
-        backgroundsUnlocked: xss(req.session.user.backgroundsUnlocked)
+        background: req.session.user.background,
+        hatsUnlocked: req.session.user.hatsUnlocked,
+        backgroundsUnlocked: req.session.user.backgroundsUnlocked
     })
 })
 
 // GET request to 'home/petDeath'
 router.route('/petDeath').get(async (req, res) => {
-    res.render('death', {title: ':(', style: '/public/css/death.css'})
+    res.render('death', {title: 'Your Pet Has Died', style: '/public/css/death.css'})
 })
 
 router.route('/updatePetFood').post(async (req, res) => {
-    const pet = await petData.getPetAttributes(xss(req.session.user.id));
+    const pet = await petData.getPetAttributes(req.session.user.id);
 
-    // TODO: REMOVE THIS LINE!
-    const testStatus = await petData.petCollectionDecay();
-    
-    // TODO: UNCOMMENT THIS LINE!
-    //const fedStatus = await petData.petAction(pet._id, 'feed');
+    const fedStatus = await petData.petAction(pet._id, 'feed');
 
     // await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
     // await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
@@ -192,7 +188,7 @@ router.route('/updatePetWhenPlayedWith').post(async (req, res) => {
 
 // POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
 router.route('/updatePetCleanliness').post(async (req, res) => {
-    const pet = await petData.getPetAttributes(xss(req.session.user.id));
+    const pet = await petData.getPetAttributes(req.session.user.id);
     const cleanStatus = await petData.petAction(pet._id, 'clean');
 
     // update the cleanliness field in the database
@@ -249,7 +245,7 @@ router.route('/store/:id').post((req, res) => {
         default:
             break;
     }
-    res.render('storeItem', {title, price, points: xss(req.session.user.points), imageSrc, alt: title, name: xss(req.params.id), style: '/public/css/storeItems.css'})
+    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: xss(req.params.id), style: '/public/css/storeItems.css'})
 })
 
 // POST request to 'home/buyItem' 
@@ -271,13 +267,13 @@ router.route('/buyItem').post((req, res) => {
     const hat = itemName.includes('hat')
     let owned = false
     if(hat){
-        for(h of xss(req.session.user.hatsUnlocked)){
+        for(h of req.session.user.hatsUnlocked){
             if(itemNo === h)
                 owned = true
         }
     }
     else{
-        for(b of xss(req.session.user.backgroundsUnlocked)){
+        for(b of req.session.user.backgroundsUnlocked){
             if(itemNo === b)
                 owned = true
         }
@@ -286,7 +282,7 @@ router.route('/buyItem').post((req, res) => {
 
     // check if user has enough points to purchase
     let canPurchase = 
-    xss(req.session.user.points) >= price ? true : false
+    req.session.user.points >= price ? true : false
 
     // set the attributes to display
     switch (itemName) {
@@ -333,8 +329,8 @@ router.route('/purchaseItem').post(async (req, res) => {
         itemNo = 3
 
     // subtract the points the item cost from the points the user has
-    let status = await userData.addPoints(xss(req.session.user.id), xss(req.session.user.username), -price)
-    status = await userData.giveItemToUser(xss(req.session.user.id), itemNo, itemName.includes('Hat'))
+    let status = await userData.addPoints(req.session.user.id, req.session.user.username, -price)
+    status = await userData.giveItemToUser(req.session.user.id, itemNo, itemName.includes('Hat'))
 
     // update the user session cookie
     req.session.user.points = status.points
@@ -360,12 +356,12 @@ router.route('/equipItem').post(async (req, res) => {
     // check if the item is a hat
     if(itemName.includes('Hat')){
         req.session.pet.hat = itemNo
-        await petData.updateHat(xss(req.session.user.id), itemNo)
+        await petData.updateHat(req.session.user.id, itemNo)
     }
     // if not it is a background
     else{
         req.session.user.background = itemNo // update user session cookie
-        await userData.updateBackground(xss(req.session.user.id), itemNo) // update user in the database
+        await userData.updateBackground(req.session.user.id, itemNo) // update user in the database
     }
 
     res.end()

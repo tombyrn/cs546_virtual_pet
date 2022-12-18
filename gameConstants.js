@@ -25,18 +25,18 @@ module.exports = {
     // },
     decaySettings: {
         // Number of days for each feature to go from 100 to zero (or rest from 0 to 100).
-        foodLifetime: 3 / (24 * 60),
-        cleanLifetime: 3 / (24 * 60),
-        happyLifetime: 3 / (24 * 60),
-        restLifetime: 1 / (24 * 60),
+        foodLifetime: 5 / (24 * 60),
+        cleanLifetime: 5 / (24 * 60),
+        happyLifetime: 5 / (24 * 60),
+        restLifetime: 5 / (24 * 60),
 
         // Number of days a value can be kept at 0 before the pet dies. 
-        foodGrace: 2 / (24 * 60),
-        cleanGrace: 2 / (24 * 60),
-        happyGrace: 2 / (24 * 60),
+        foodGrace: 2.5 / (24 * 60),
+        cleanGrace: 2.5 / (24 * 60),
+        happyGrace: 2.5 / (24 * 60),
 
         // Interval (minutes) between decay calls.
-        decayInterval: 10
+        decayInterval: 0.25
     },
     actionRewards: {
         feed: {

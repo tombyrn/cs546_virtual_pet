@@ -8,7 +8,7 @@ const xss = require('xss');
 
 // GET request to '/'
 router.route('/').get((req, res) => {
-    if(xss(req.session.user)){
+    if(req.session.user){
         return res.redirect('/home')
     }
     else{
@@ -18,7 +18,7 @@ router.route('/').get((req, res) => {
 
 // GET request to 'login'
 router.route('/login').get(async (req, res) => {
-    if (xss(req.session.user)){
+    if (req.session.user){
         return res.redirect('/home')
     } else {
         return res.render('login', {title: 'Login', style: "/public/css/login.css"})
@@ -63,6 +63,7 @@ router.route('/login').post(async (req, res) => {
     if(user.authenticatedUser){
         req.session.user = setUserSession(user.userInfo)
         //TODO: Add try-catch for get pet attributes. 
+        //OR...is this check necessary if home paths are already death-protected by middleware?
         req.session.pet = await petData.getPetAttributes(user.userInfo._id)
         if(!req.session.pet){// if the pet cannot be found it was removed from database because it has died
             return res.redirect('/home/petDeath')
@@ -148,7 +149,7 @@ router.route('/register').post(async (req, res) => {
 
 // GET request to 'logout'
 router.route('/logout').get((req, res) => {
-    if (xss(req.session.user)){
+    if (req.session.user){
         req.session.destroy();
         return res.render('logout', {title: 'Logout', style: "/public/css/landing.css"})
     } else {
