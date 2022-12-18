@@ -96,7 +96,7 @@ router.route('/createPet').get((req, res) => {
 
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon', {title: "Simon", style: '/public/css/simon.css'})
+    return res.render('simon', {title: 'Simon', style: '/public/css/simon.css'})
 })
 
 // GET request to 'home/play/hangman'
@@ -107,8 +107,8 @@ router.route('/play/hangman').get((req, res) => {
     res.render('hangman', {
         title: "Hangman", 
         style:"/public/css/hangman.css", 
-        alphabets: 
-        hangmanGameDate.alphabets,lives: hangmanGameDate.lives,
+        alphabets: hangmanGameDate.alphabets,
+        lives: hangmanGameDate.lives,
         hintword: word
     })
 })
@@ -190,6 +190,17 @@ router.route('/updatePetWhenPlayedWith').post(async (req, res) => {
 router.route('/updatePetCleanliness').post(async (req, res) => {
     const pet = await petData.getPetAttributes(req.session.user.id);
     const cleanStatus = await petData.petAction(pet._id, 'clean');
+
+    // update the cleanliness field in the database
+    // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    // req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    res.end();
+});
+
+// POST request to 'home/updatePetHappiness', called in an ajax request in home page when the pet is played with
+router.route('/updatePetHappiness').post(async (req, res) => {
+    const pet = await petData.getPetAttributes(req.session.user.id);
+    const playStatus = await petData.petAction(pet._id, 'play');
 
     // update the cleanliness field in the database
     // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)

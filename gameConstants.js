@@ -47,7 +47,7 @@ module.exports = {
         },
         clean: {
             food: 0,
-            cleanliness: 20,
+            cleanliness: 100,
             happiness: 5,
             rest: -5
         },
