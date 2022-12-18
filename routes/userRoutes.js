@@ -27,8 +27,16 @@ router.route('/login').get(async (req, res) => {
 
 // POST request to 'login'
 router.route('/login').post(async (req, res) => {
+    if (req.session.user)
+        return res.redirect('/home')
+    
     let username = xss(req.body.usernameInput)
     let password = xss(req.body.passwordInput)
+
+    const inputs = {
+        usernameInput: username,
+        passwordInput: password
+    }
 
     // Validation
     const errors = {}
@@ -43,7 +51,7 @@ router.route('/login').post(async (req, res) => {
         errors.password = e
     }
     if (Object.keys(errors).length > 0) {
-        return res.status(400).render('login', {title: 'Login', style: "/public/css/login.css", errors: errors, inputs: xss(req.body)})
+        return res.status(400).render('login', {title: 'Login', style: "/public/css/login.css", errors: errors, inputs: inputs})
     }
 
     // check if user is valid
@@ -52,10 +60,10 @@ router.route('/login').post(async (req, res) => {
         user = await userData.checkUser(username, password)
     } catch (e) {
         if (e === 'Error: Either the username or password is invalid'){
-            return res.status(400).render('login', {title: 'Login', style: "/public/css/login.css", otherError: e, inputs: xss(req.body)})
+            return res.status(400).render('login', {title: 'Login', style: "/public/css/login.css", otherError: e, inputs: inputs})
         } else {
             // Something else happened
-            return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: xss(req.body)})
+            return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: inputs})
         }
     }
     
@@ -72,13 +80,13 @@ router.route('/login').post(async (req, res) => {
     }
     
     // checkUser did not return, but did not throw. Not expected to trigger
-    return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: req.body})
+    return res.status(500).render('login', {title: 'Login', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: inputs})
 })
 
 
 // GET request to 'register'
 router.route('/register').get(async (req, res) => {
-    if (xss(req.session.user)){
+    if (req.session.user){
         return res.redirect('/home')
     } else {
         return res.render('register', {title: 'Register an Account', style: 'public/css/login.css'})
@@ -93,6 +101,14 @@ router.route('/register').post(async (req, res) => {
     let email = xss(req.body.emailInput)
     let username = xss(req.body.usernameInput)
     let password = xss(req.body.passwordInput)
+
+    const inputs = {
+        firstNameInput: firstName,
+        lastNameInput: lastName, 
+        emailInput: email,
+        usernameInput: username,
+        passwordInput: password
+    }
 
     // Validation
     const errors = {}
@@ -122,7 +138,7 @@ router.route('/register').post(async (req, res) => {
         errors.password = e
     }
     if (Object.keys(errors).length > 0) {
-        return res.status(400).render('register', {title: 'Register an Account', style: "/public/css/login.css", errors: errors, inputs: xss(req.body)})
+        return res.status(400).render('register', {title: 'Register an Account', style: "/public/css/login.css", errors: errors, inputs: inputs})
     }
 
     let user = {}
@@ -130,10 +146,10 @@ router.route('/register').post(async (req, res) => {
         user = await userData.createUser(firstName, lastName, email, username, password)
     } catch (e) {
         if (e === 'Error: The provided username or email is already in use.'){
-            return res.status(400).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: e, inputs: xss(req.body)})
+            return res.status(400).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: e, inputs: inputs})
         } else {
             // Something else happened
-            return res.status(500).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: xss(req.body)})
+            return res.status(500).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: inputs})
         }
     }
 
@@ -144,7 +160,7 @@ router.route('/register').post(async (req, res) => {
     }
     
     // createUser did not return, but did not throw. Not expected to trigger
-    return res.status(500).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: xss(req.body)})
+    return res.status(500).render('register', {title: 'Register an Account', style: "/public/css/login.css", otherError: 'Internal Server Error', inputs: inputs})
 })
 
 // GET request to 'logout'
@@ -159,16 +175,39 @@ router.route('/logout').get((req, res) => {
 
 // POST request to 'addUserPoints', called in ajax request when the user earns or spends points
 router.route('/addUserPoints').post(async (req, res) => {
-    const user = await userData.addPoints(req.session.user.id, req.session.user.username, parseInt(req.body.points))
-    req.session.user.points = user.points
-    return res.end()
+    if (!req.session.user){
+        return res.redirect('/login')
+    } else {
+        if (!req.body.points)
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No point value specified to add to user.'})
+        const points = parseInt(xss(req.body.points));
+        //TODO: Continue validation from here.
+        try {
+            const user = await userData.addPoints(req.session.user.id, parseInt(xss(req.body.points)));
+        } catch (e) {
+            // No errors are expected here. 
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+        }
+        req.session.user.points = user.points
+        res.end()
+    }
 })
 
 // POST request to 'updateUserBackground', called in ajax request when the user changes their background
 router.route('/updateUserBackground').post(async (req, res) => {
-    const user = await userData.updateBackground(req.session.user.id, req.body.background)
-    req.session.user.background = user.background
-    res.end();
+    if (!req.session.user){
+        return res.redirect('/login')
+    } else {
+        //TODO: Add validation. 
+        try {
+            const user = await userData.updateBackground(req.session.user.id, xss(req.body.background))
+        } catch (e) {
+            // No errors are expected here.
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+        }
+        req.session.user.background = user.background
+        res.end();
+    }
 })
 
 

@@ -136,13 +136,12 @@ const checkUser = async (
 };
 
 const addPoints = async(
-    userId, username, points
+    userId, points
 ) => {
     userId = validateIdString(userId);
-    username = validateUsername(username);
     points = validatePoints(points);
 
-    const user = await getUserByUsername(username, 'Error: User with input username not found.');
+    const user = await getUserById(userId);
 
     points = user.points + points;
 
@@ -151,12 +150,10 @@ const addPoints = async(
     }
 
     const userCollection = await users();
-    const updateInfo = await userCollection.updateOne({ username: username },{ $set: update });
+    const updateInfo = await userCollection.updateOne({ _id: ObjectId(userId) },{ $set: update });
     if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
 
-    return await userCollection.findOne({username});
-
-    //can change what we return
+    return await getUserById(userId);
 }
 
 const updateUserInfo = async(
@@ -247,7 +244,7 @@ const updateBackground = async (
     const status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {background: bgNo}})
 
     if(!status.acknowledged)
-        throw 'Error: background not updated in database'
+        throw 'Error: Background not updated in database.'
 
     return await getUserById(userId);
 }

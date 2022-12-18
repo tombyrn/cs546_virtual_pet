@@ -41,9 +41,21 @@ router.route('/store').get((req, res) => {
 
 // POST request to 'home/profile'
 router.route('/profile').get( async (req, res) => {
-    
-    req.session.pet = await petData.getPetAttributes(req.session.user.id)
-    const pet = req.session.pet
+    try{
+        const pet = await petData.getPetAttributes(req.session.user.id);
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.'){
+            // This user had a pet, but it died. 
+            return res.redirect('/home/petDeath')
+        } else {
+            // Some other error has occurred. 
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+        }
+    }
+    req.session.pet = pet
+
+    //TODO: Return here after doing death stuff..
+    //And actually, get all of this cookie-ry squared away. 
     // throw error if pet doesn't exist
     if(!pet)
         throw 'Error: no pet session cookie (petRoutes.js line45)'
@@ -77,12 +89,20 @@ router.route('/createPet').post( async (req, res) => {
     let design = xss(req.body.design);
     if(!design)
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: 'You need to choose a pet design'});
-    design = validateDesignNumber(Number(design));
+    try {
+        design = validateDesignNumber(parseInt(design));
+    } catch (e) {
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: e});
+    }
     let name = xss(req.body.name);
     if(!name)
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
-    name = validateName(name);
-
+    try {
+        name = validateName(name);
+    } catch (e) {
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: e})
+    }
+    
     const petId = await petData.createPet(req.session.user.id, {name: name, design: design})
 
     const status = await petData.givePetToUser(req.session.user.id, petId)

@@ -273,11 +273,10 @@ const petCollectionDecay = async (
         throw 'Error: Could not update pet death status.'
     }
 
-    //TODO: Further processing after marking pets dead?
-
-    // const status1 = await petCollection.updateMany({alive: true}, {$inc: {food: -1, cleanliness: -1, happiness: -1, rest: 1}}); // decreases food, cleanliness, happiness level of all pets, increases rest(todo: only increase rest when user is away)
-    // const status2 = await petCollection.updateMany({$or: [{food: {$lte: 0}}, {cleanliness: {$lte: 0}}, {happiness: {$lte: 0}}, {rest: {$lte: 0}}]}, {$set: {alive: false}}); // if any of the metrics decrease below 0, set alive boolean to false
-    // const status3 = await petCollection.deleteMany({alive: false}); // delete any pet who has died
+    const deletionStatus = await petCollection.deleteMany({alive: false}); // delete any pet who has died
+    if (!deletionStatus.acknowledged){
+        throw 'Error: Could not delete dead pets.'
+    }
 
     return true;
 }

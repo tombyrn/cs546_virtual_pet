@@ -1,122 +1,145 @@
-var gamePattern = [];
+let gamePattern = [];
+let userClickedPattern = [];
 
-    var userClickedPattern = [];
+let buttonColour = ["red", "blue", "green", "yellow"];
 
-    var buttonColour = ["red", "blue", "green", "yellow"];
+let playerTurn = false;
 
-    var started = false;
+let started = false;
+let level = 0;
+let length;
 
-    var level = 0;
+// Citation: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
 
-    var length;
-
-    var c = 1; // Count variable for "restart' button 
-
-    function nextSequence() {
-        level++;
-        $("h1").text("Level: " + level);
-        var randomNumber = Math.floor(Math.random() * 4);
-        var randomChosenColour = buttonColour[randomNumber];
-        gamePattern.push(randomChosenColour);
-        var val = $("#" + randomChosenColour);
+async function nextLevel() {
+    level++;
+    $("h1").text("Level: " + level);
+    userClickedPattern = [];
+    let randomNumber = Math.floor(Math.random() * 4);
+    let randomChosenColour = buttonColour[randomNumber];
+    gamePattern.push(randomChosenColour);
+    for (let color of gamePattern){
+        let val = $("#" + color);
         val.fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-        playsound(randomChosenColour);
-        console.log("Current Pattern")
-        console.log(gamePattern)
+        playsound(color);
+        await delay(750);
     }
-    $(".button").on("click", function () {
+    playerTurn = true;
+}
+
+$(".button").on("click", function () {
+    if (playerTurn){
         var userChosenColour = $(this).attr("id");
         userClickedPattern.push(userChosenColour);
-        playsound(userChosenColour);
         animatePress(userChosenColour);
         length = userClickedPattern.length;
-        checkAnswer(length - 1);
-        console.log("Use patter");
-        console.log(userClickedPattern)
-    });
-
-    function playsound(name) {
-        var sound = new Audio("/public/sounds/" + name + ".mp3");
-        sound.play();
-    }
-
-    function animatePress(currentColour) {
-        $("#" + currentColour).addClass("pressed");
-        setTimeout(function () {
-            $("#" + currentColour).removeClass("pressed");
-        }, 80);
-    }
-
-    // detect mouse click on 'Start' button
-    $(".start").on("click", function () {
-        if (!started) {
-            $("h1").text("Level :" + level);
-            nextSequence();
-            started = true;
-            $(".start").remove();
-            document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
+        if(checkAnswer(length - 1)){
+            playsound(userChosenColour);
         }
-    });
+    }
+});
 
-    function checkAnswer(currentLevel) {
-        if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
-            if (gamePattern.length === userClickedPattern.length) {
-                if (level == 5) {
-                    $("h1").text("Congrats, You have won 50 points!");
-                    $.post('/addUserPoints', {points: 50});
-                    started = false;
-                    level = 0;
-                    $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
-                    document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
-                    $(".restart").on("click", function () {
-                        if (!started) {
-                            $("h1").text("Level :" + level);
-                            nextSequence();
-                            started = true;
-                            $(".restart").remove();
-                            document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
-                        }
+function playsound(name) {
+    var sound = new Audio("/public/sounds/" + name + ".mp3");
+    sound.play();
+}
 
-                    })
-                }
-                else {
-                    setTimeout(function () {
-                        nextSequence();
+function animatePress(currentColour) {
+    $("#" + currentColour).addClass("pressed");
+    setTimeout(function () {
+        $("#" + currentColour).removeClass("pressed");
+    }, 80);
+}
 
-                    }, 1000);
-                }
+// detect mouse click on 'Start' button
+$(".start").on("click", async function () {
+    if (!started) {
+        $("h1").text("Level :" + level);
+        started = true;
+        $(".start").remove();
+        document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
+        await nextLevel();
+    }
+});
+
+const victory = async () => {
+    await $.post('/addUserPoints', {points: 50});
+    await $.post('/home/updatePetHappiness');
+}
+
+function checkAnswer(lastIndex) {
+    if (gamePattern[lastIndex] === userClickedPattern[lastIndex]) {
+        if (gamePattern.length === userClickedPattern.length) {
+            if (level == 5) {
+                // Game over, player wins
+                $("h1").text("Congrats, You have won 50 points!");
+                victory();
+
+                // Reset the game
+                started = false;
+                gamePattern = [];
+                level = 0;
+                playerTurn = false;
+                $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
+                document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
+                $(".restart").on("click", async function () {
+                    if (!started) {
+                        $("h1").text("Level :" + level);
+                        started = true;
+                        $(".restart").remove();
+                        document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
+                        await nextLevel();
+                    }
+                })
+            }
+            else {
+                // Move to the next level
+                playerTurn = false;
+                setTimeout(async function () {
+                    await nextLevel();
+                }, 1000);
             }
         }
-        else {
-            $("body").addClass("game-over")
-            $("h1").text("Game Over!");
-            document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
-            var sound2 = new Audio("/public/sounds/wrong.mp3");
-            sound2.play();
-            setTimeout(function () {
-                $("body").removeClass("game-over")
-            }, 200);
-            started = false;
-            level = 0;
-            $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
-            document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
-            $(".restart").on("click", function () {
-                        if (!started) {
-                            $("h1").text("Level :" + level);
-                            nextSequence();
-                            started = true;
-                            $(".restart").remove();
-                            document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
-                        }
-
-                    })
-            startOver();
-        }
+        // Player has more buttons to press; do nothing. 
+        return true;
     }
+    else {
+        // Player clicked the wrong button, loses
+        $("body").addClass("game-over")
+        $("h1").text("Game Over!");
+        document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
+        var sound2 = new Audio("/public/sounds/wrong.mp3");
+        sound2.play();
+        setTimeout(function () {
+            $("body").removeClass("game-over")
+        }, 200);
 
-    function startOver() {
-        level = -1;
-        gamePattern = [];
+        // Reset the game
         started = false;
-        nextSequence();
+        gamePattern = [];
+        level = 0;
+        playerTurn = false;
+        $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
+        document.getElementsByClassName('main-container')[0].setAttribute('style','display:none');
+        $(".restart").on("click", async function () {
+            if (!started) {
+                $("h1").text("Level :" + level);
+                started = true;
+                $(".restart").remove();
+                document.getElementsByClassName('main-container')[0].setAttribute('style','display:block');
+                await nextLevel();
+            }
+        })
+        return false;
     }
+}
+
+async function startOver() {
+    level = -1;
+    gamePattern = [];
+    started = false;
+    await nextLevel();
+}
