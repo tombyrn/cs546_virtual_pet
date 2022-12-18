@@ -61,8 +61,8 @@ const createUser = async (
         petId: null,
         points: 0,
         background: 0,
-        hatsUnlocked: [],
-        backgroundsUnlocked: []
+        hatsUnlocked: [0],
+        backgroundsUnlocked: [0]
     }
 
     const status = await userCollection.insertOne(newUser)
@@ -203,11 +203,11 @@ const giveItemToUser = async (
 
     const user = await getUserById(userId);
     if (hat){
-        if (user.hatsUnlocked.contains(itemNo)){
+        if (user.hatsUnlocked.includes(itemNo)){
             throw 'Error: User already has this hat.'
         }
     } else {
-        if (user.backgroundsUnlocked.contains(itemNo)){
+        if (user.backgroundsUnlocked.includes(itemNo)){
             throw 'Error: User already has this background.'
         }
     }
@@ -236,7 +236,7 @@ const updateBackground = async (
     if (user.background === bgNo){
         throw 'Error: User background is already set to input background number.'
     }
-    if (!user.backgroundsUnlocked.contains(bgNo)){
+    if (!user.backgroundsUnlocked.includes(bgNo)){
         throw 'Error: User does not have access to this background.'
     }
 

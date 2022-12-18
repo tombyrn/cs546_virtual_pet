@@ -309,8 +309,8 @@ router.route('/store/:id').post((req, res) => {
 // POST request to 'home/buyItem' 
 router.route('/buyItem').post((req, res) => {
 
-    let itemName = Object.keys(xss(req.body))[0]
-    let price = Object.values(xss(req.body))[0]
+    let itemName = xss(Object.keys(req.body)[0])
+    let price = xss(Object.values(req.body)[0])
 
     // find the number of the item
     let itemNo
@@ -387,7 +387,7 @@ router.route('/purchaseItem').post(async (req, res) => {
         itemNo = 3
 
     // subtract the points the item cost from the points the user has
-    let status = await userData.addPoints(req.session.user.id, req.session.user.username, -price)
+    let status = await userData.addPoints(req.session.user.id, -price)
     status = await userData.giveItemToUser(req.session.user.id, itemNo, itemName.includes('Hat'))
 
     // update the user session cookie
