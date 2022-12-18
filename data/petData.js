@@ -93,6 +93,7 @@ const updatePetAttribute = async (
     obj = {}
     obj[field] = value
     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: obj})
+    await calculateHealth(userId)
     return await petCollection.findOne({userId: ObjectId(userId)})
 }
 
@@ -129,7 +130,7 @@ const calculateHealth = async (
 
     let health
     if(pet)
-        health =  (pet.cleanliness + pet.happiness + pet.food) / 3
+        health =  Math.floor((pet.cleanliness + pet.happiness + pet.food + pet.rest) / 4)
 
     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: {health}})
     if(!status.acknowledged)

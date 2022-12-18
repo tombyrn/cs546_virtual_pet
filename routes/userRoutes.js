@@ -61,7 +61,11 @@ router.route('/login').post(async (req, res) => {
     // create express session if the user exists, and send to home page
     if(user.authenticatedUser){
         req.session.user = setUserSession(user.userInfo)
-        req.session.pet = await petData.getPetAttributes(user.userId)
+        req.session.pet = await petData.getPetAttributes(req.session.user.id)
+
+        if(!req.session.pet){// if the pet cannot be found it was removed from database because it has died
+            return res.redirect('/home/petDeath')
+        } 
         return res.redirect('/home')
     }
     
@@ -155,7 +159,7 @@ router.route('/logout').get((req, res) => {
 router.route('/addUserPoints').post(async (req, res) => {
     const user = await userData.addPoints(req.session.user.id, req.session.user.username, parseInt(req.body.points))
     req.session.user.points = user.points
-    res.end()
+    return res.end()
 })
 
 // POST request to 'updateUserBackground', called in ajax request when the user changes their background

@@ -1,12 +1,18 @@
 * {
+    background-color: #faebd7; 
+    font-family: 'Courier New', Courier, monospace;
+}
+
+html, body {
+    
     padding: 0%;
     margin: 0%;
     width: 100%;
     height: 100%;
-    font-family: 'Courier New', Courier, monospace;
 }
 
 .container {
+    
     border: solid black thick;
     width: 100%;
     height: 100%;
@@ -23,7 +29,7 @@ h1 {
     text-align: center;
 }
 
-.itemContainer {
+.itemContainer, form {
     display: flex;
     flex-direction: row;
     width: 100%;

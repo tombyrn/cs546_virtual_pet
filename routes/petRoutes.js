@@ -22,7 +22,7 @@ router.route('/').get( async (req, res) => {
 
 // POST request to 'home/play'
 router.route('/play').get((req, res) => {
-    res.render('chooseGame', {title: 'Choose Game', style: '/public/css/chooseGame.css'})
+    res.render('chooseGame', {title: 'Game Studio', style: '/public/css/chooseGame.css'})
 })
 
 // GET request to 'home/clean'
@@ -93,15 +93,21 @@ router.route('/createPet').get((req, res) => {
 
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon')
+    res.render('simon', {title: "Simon", style: '/public/css/simon.css'})
 })
 
 // GET request to 'home/play/hangman'
 router.route('/play/hangman').get((req, res) => {
     const word_list = [...hangmanGameDate.words.keys()];
     let word = word_list[Math.floor(Math.random() * word_list.length)];
-    // console.log(word)
-    res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: word})
+
+    res.render('hangman', {
+        title: "Hangman", 
+        style:"/public/css/hangman.css", 
+        alphabets: 
+        hangmanGameDate.alphabets,lives: hangmanGameDate.lives,
+        hintword: word
+    })
 })
 // GET request to game studio
 router.route('/choose').get((req, res) => {
@@ -128,6 +134,8 @@ router.route('/getPetInfo').get(async (req, res) => {
         return res.redirect('/home/petDeath') // send the use to death screen
     }
 
+    req.session.pet = pet
+
     // send information back to home page to be displayed
     res.send({
         pet,
@@ -146,10 +154,27 @@ router.route('/petDeath').get(async (req, res) => {
 router.route('/updatePetFood').post(async (req, res) => {
     // update the lastFed field in the database
     await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
-    // update the food attribute and the pet session cookie
+    // update the food field and the pet session cookie
     req.session.pet = await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
     res.end();
 })
+
+// POST request to 'home/updatePetWhenPlayedWith', called in an ajax request when the pet is played with
+router.route('/updatePetWhenPlayedWith').post(async (req, res) => {
+    // update the lastPlayed field in the database
+    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "lastPlayed", req.body.date, true)
+
+    // make sure happiness <= 100 and rest >= 0
+    const happiness =  req.session.pet.happiness+20 >= 100 ? 100 : req.session.pet.happiness+20
+    const rest = req.session.pet.rest-20 <= 0 ? 0 : req.session.pet.rest-20
+
+    // update the happiness field in the database
+    await petData.updatePetAttribute(req.session.user.id, "happiness", happiness, true)
+    // update the rest field and the pet session cookie
+    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "rest", rest, true)
+    res.end();
+})
+
 
 // POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
 router.route('/updatePetCleanliness').post(async (req, res) => {

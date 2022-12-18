@@ -102,7 +102,8 @@ async function feedAnimation(){
     let circle = new Two.Circle(x, y, radius, resolution)
 
     circle.fill = '#FF8000'
-    circle.noStroke() // no outline on circle
+    circle.stroke = '#000000'
+    circle.linewidth = 2
     
     two.add(circle)
 

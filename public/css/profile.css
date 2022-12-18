@@ -5,6 +5,7 @@
 }
 
 .container {
+    background-color: #faebd7;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -21,14 +22,14 @@ h1 {
 }
 
 #petStats {
-    border: dotted dodgerblue thick;
+    border: dotted #0370b1 thick;
     list-style-type: none;
     padding: 5%;
     margin: 5%;
     font-size: 20px;
 }
 
-.links{
+.links {
     border: dotted green thick;
     width: 100%;
     height: 25%;

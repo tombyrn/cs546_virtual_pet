@@ -25,7 +25,6 @@
     </button>
 </form>
 
-<link rel="stylesheet" type="text/css" href="/public/css/simon.css">
 <script>
     var gamePattern = [];
 
@@ -87,12 +86,13 @@
         }
     });
 
-    function checkAnswer(currentLevel) {
+    async function checkAnswer(currentLevel) {
         if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
             if (gamePattern.length === userClickedPattern.length) {
                 if (level == 5) {
                     $("h1").text("Congrats, You have won 50 points!");
-                    $.post('/addUserPoints', {points: 50});
+                    await ($.post('/addUserPoints', {points: 50}));
+                    await ($.post('/home/updatePetWhenPlayedWith', {date: Date.now()}))
                     started = false;
                     level = 0;
                     $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');
@@ -114,6 +114,7 @@
 
                     }, 1000);
                 }
+
             }
         }
         else {
@@ -125,6 +126,7 @@
             setTimeout(function () {
                 $("body").removeClass("game-over")
             }, 200);
+            await ($.post('/home/updatePetWhenPlayedWith', {date: Date.now()}))
             started = false;
             level = 0;
             $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');

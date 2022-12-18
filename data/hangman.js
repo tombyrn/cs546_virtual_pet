@@ -32,7 +32,7 @@ const words = new Map([
   ["dog", "You can take this one for a walk!"],
   ["cat", "The cuddly domesticated decendent of big cats."],
   ["cryptography", "Method of encrypting text."],
-  ["programming", "Pocess of instructing the computer to perform a series of operations."],
+  ["programming", "Process of instructing the computer to perform a series of operations."],
   ["computer", "Comes in different shapes and sizes, used to watch netflix, write code, write emails."],
   ["executioner", "Synonym for the game name."],
   ["starbucks", "Famous chain of coffeehouses."],
