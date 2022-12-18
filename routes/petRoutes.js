@@ -93,16 +93,19 @@ router.route('/createPet').get((req, res) => {
 
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon', {title: 'Simon', style: '/public/css/simon.css'})
+    res.render('simon')
 })
 
 // GET request to 'home/play/hangman'
 router.route('/play/hangman').get((req, res) => {
-    res.render('hangman', {title: 'Hangman', style: '/public/css/hangman.css', alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: hangmanGameDate.word})
+    const word_list = [...hangmanGameDate.words.keys()];
+    let word = word_list[Math.floor(Math.random() * word_list.length)];
+    // console.log(word)
+    res.render('hangman', {alphabets: hangmanGameDate.alphabets,lives: hangmanGameDate.lives,hintword: word})
 })
 // GET request to game studio
 router.route('/choose').get((req, res) => {
-    res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'})
+    res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'});
 })
 
 // GET request to get hint
@@ -116,12 +119,12 @@ router.route('/gethint').get((req, res) => {
 // GET request to 'home/getPetInfo', called in an ajax request in home page
 router.route('/getPetInfo').get(async (req, res) => {
     // get pet information from database
-    pet = await petData.getPetAttributes(req.session.user.id);
+    // pet = await petData.getPetAttributes(req.session.user.id);
     // calculate the total health of the pet
     pet = await petData.calculateHealth(req.session.user.id)
 
     // if the pet doesn't exist it has died
-    if(pet === null){
+    if(pet === null || pet.health === NaN){
         return res.redirect('/home/petDeath') // send the use to death screen
     }
 
