@@ -189,22 +189,6 @@ router.route('/updatePetFood').post(async (req, res) => {
     res.end();
 })
 
-// POST request to 'home/updatePetWhenPlayedWith', called in an ajax request when the pet is played with
-router.route('/updatePetWhenPlayedWith').post(async (req, res) => {
-    // update the lastPlayed field in the database
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "lastPlayed", req.body.date, true)
-
-    // make sure happiness <= 100 and rest >= 0
-    const happiness =  req.session.pet.happiness+20 >= 100 ? 100 : req.session.pet.happiness+20
-    const rest = req.session.pet.rest-20 <= 0 ? 0 : req.session.pet.rest-20
-
-    // update the happiness field in the database
-    await petData.updatePetAttribute(req.session.user.id, "happiness", happiness, true)
-    // update the rest field and the pet session cookie
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "rest", rest, true)
-    res.end();
-})
-
 
 // POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
 router.route('/updatePetCleanliness').post(async (req, res) => {
