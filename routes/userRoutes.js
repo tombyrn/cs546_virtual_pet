@@ -3,7 +3,8 @@ const router = require('express').Router()
 const userData = require('../data/').users
 const petData = require('../data/').pets
 
-const {validateName, validateEmail, validateUsername, validatePassword, setUserSession} = require('../helpers')
+const {validateName, validateEmail, validateUsername, validatePassword, setUserSession, 
+    validatePoints, validateBgNumber} = require('../helpers')
 const xss = require('xss');
 
 // GET request to '/'
@@ -179,13 +180,19 @@ router.route('/addUserPoints').post(async (req, res) => {
         return res.redirect('/login')
     } else {
         if (!req.body.points)
+            // Not expected to trigger
             return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No point value specified to add to user.'})
-        const points = parseInt(xss(req.body.points));
-        //TODO: Continue validation from here.
+        let points = parseInt(xss(req.body.points));
         try {
-            const user = await userData.addPoints(req.session.user.id, parseInt(xss(req.body.points)));
+            points = validatePoints(points);
         } catch (e) {
-            // No errors are expected here. 
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No point value specified to add to user.'})
+        }
+        try {
+            const user = await userData.addPoints(req.session.user.id, points);
+        } catch (e) {
+            // Not expected to trigger
             return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
         }
         req.session.user.points = user.points
@@ -198,9 +205,19 @@ router.route('/updateUserBackground').post(async (req, res) => {
     if (!req.session.user){
         return res.redirect('/login')
     } else {
-        //TODO: Add validation. 
+        if (!req.body.background) {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No background specified to switch to.'})
+        }
+        let background = parseInt(xss(req.body.background));
         try {
-            const user = await userData.updateBackground(req.session.user.id, xss(req.body.background))
+            background = validateBgNumber(background);
+        } catch (e) {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No point value specified to add to user.'})
+        }
+        try {
+            const user = await userData.updateBackground(req.session.user.id, background)
         } catch (e) {
             // No errors are expected here.
             return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
