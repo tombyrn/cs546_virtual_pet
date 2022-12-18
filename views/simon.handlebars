@@ -1,4 +1,8 @@
-<h1>Simon Memory Game</h1>
+
+<div id="title">
+    <h1>Simon Memory Game</h1>  
+</div>
+
 <button type="button" class="start btn btn-lg">Start</button>
 <div class="main-container" style="display: none;">
     <div class="main-row">
@@ -20,6 +24,7 @@
         Back To Game studio
     </button>
 </form>
+
 <link rel="stylesheet" type="text/css" href="/public/css/simon.css">
 <script>
     var gamePattern = [];
@@ -38,7 +43,7 @@
 
     function nextSequence() {
         level++;
-        $("h1").text("Level :" + level);
+        $("h1").text("Level: " + level);
         var randomNumber = Math.floor(Math.random() * 4);
         var randomChosenColour = buttonColour[randomNumber];
         gamePattern.push(randomChosenColour);
@@ -87,7 +92,7 @@
             if (gamePattern.length === userClickedPattern.length) {
                 if (level == 5) {
                     $("h1").text("Congrats, You have won 50 points!");
-                    //await ($.post('/addUserPoints', {points: 50}))
+                    $.post('/addUserPoints', {points: 50});
                     started = false;
                     level = 0;
                     $(".main-container").before('<button type="button" class="restart btn btn-lg ">Restart</button>');

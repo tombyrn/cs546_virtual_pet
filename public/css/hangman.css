@@ -1,58 +1,80 @@
 body {
     text-align: center;
-    background-color: lightcyan;
+    /* background-color: lightcyan; */
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #faebd7;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
   }
-  .wrapper {
-    width: fit-content;
-    margin: auto;
-  }
-  .hint-div {
-    display: flex;
-    color: chartreuse;
-  }
-  .hint-btn,
-  .reset-btn,
-  .notif-btn {
-    cursor: pointer;
-  }
-  .reset-btn {
-    margin-left: auto;
-  }
-  .alpha {
-    cursor: pointer;
-  }
-  .alpha:hover {
-    background-color: #e75480;
-    border: none;
-  }
-  .disabled {
-    pointer-events: none;
-    background-color: darkgray;
-  }
-  
-  .word-div {
-    display: inline-flex;
-  }
-  .word {
-    margin-right: 1.5rem;
-    display: inline;
-  }
-  
-  .notif {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fc6c85;
-    width: 20rem;
-    padding: 20px 10px;
-    border-radius: 4px;
-    box-shadow: 3px 3px 1px 1px rgba(0, 0, 0, 0.2);
-  }
-  .blur {
-    filter: blur(2px);
-  }
-  .hidden {
-    display: none;
-  }
-  
+.wrapper {
+  width: fit-content;
+  margin: auto;
+}
+.hint-div {
+  display: flex;
+  /* color: chartreuse; */
+  color:#025d2e;
+  font-weight: bold;
+  font-size: 16px;
+}
+#title{
+  margin: 5%;
+  border: dotted red thick;
+}
+
+.hint-btn,
+.reset-btn,
+.notif-btn {
+  cursor: pointer;
+}
+.reset-btn {
+  margin-left: auto;
+}
+.alpha {
+  cursor: pointer;
+}
+.alpha:hover {
+  background-color: #e75480;
+  border: none;
+}
+
+h4{
+  font-weight: bold;
+  font-size: 18px;
+  margin: 10%;
+}
+.disabled {
+  pointer-events: none;
+}
+
+.word-div {
+  display: inline-flex;
+}
+.word {
+  margin-right: 1.5rem;
+  display: inline;
+}
+
+.notif {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fa899c;
+  width: 20rem;
+  padding: 20px 10px;
+  border-radius: 4px;
+  box-shadow: 3px 3px 1px 1px rgba(0, 0, 0, 0.2);
+}
+.blur {
+  filter: blur(2px);
+}
+.hidden {
+  display: none;
+}
+
+p {
+  font-size: 18px;
+}
