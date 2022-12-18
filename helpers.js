@@ -97,7 +97,6 @@ function setUserSession(user) {
 }
 
 function validatePoints(points) {
-    if(!points){throw 'Error: Points must be provided.'}
     if (typeof points !== 'number' || !Number.isInteger(points)){
         throw 'Error: Points must be an integer.';
     }
@@ -105,7 +104,6 @@ function validatePoints(points) {
 }
 
 function validateDesignNumber(designNumber) {
-    if(!designNumber){throw 'Error: Design number must be provided.'}
     if (typeof designNumber !== 'number' || !Number.isInteger(designNumber)){
         throw 'Error: Design number must be an integer.';
     }
@@ -116,8 +114,6 @@ function validateDesignNumber(designNumber) {
 }
 
 function validateHatNumber(hatNumber) {
-    // TODO: Verify if this and other design numbers should or should not permit 0. 
-    if(!hatNumber){throw 'Error: Hat number must be provided.'}
     if (typeof hatNumber !== 'number' || !Number.isInteger(hatNumber)){
         throw 'Error: Hat number must be an integer.';
     }
@@ -128,7 +124,6 @@ function validateHatNumber(hatNumber) {
 }
 
 function validateBgNumber(bgNumber) {
-    if(!bgNumber){throw 'Error: Background number must be provided.'}
     if (typeof bgNumber !== 'number' || !Number.isInteger(bgNumber)){
         throw 'Error: Background number must be an integer.';
     }

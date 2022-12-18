@@ -209,10 +209,11 @@ router.route('/updateUserBackground').post(async (req, res) => {
             background = validateBgNumber(background);
         } catch (e) {
             // Not expected to trigger
-            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No point value specified to add to user.'})
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
         }
+        let user;
         try {
-            const user = await userData.updateBackground(req.session.user.id, background)
+            user = await userData.updateBackground(req.session.user.id, background)
         } catch (e) {
             // No errors are expected here.
             return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
