@@ -6,7 +6,7 @@ const users = require('../config/mongoCollections').users
 
 const userData = require('./userData');
 
-const {validateIdString, validateName, validateDesignNumber} = require('../helpers');
+const {validateIdString, validateName, validateDesignNumber, validateHatNumber} = require('../helpers');
 const {decaySettings, actionRewards} = require('../gameConstants');
 
 // petProps should be an object of {name: string,  design: number}
@@ -432,12 +432,15 @@ const checkAllNotZeroes = async (
 const updateHat = async (
     userId, hatNo
 ) => {
+    userId = validateIdString(userId);
+    hatNo = validateHatNumber(hatNo);
+
     const petCollection = await pets()
 
     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: {hat: hatNo}})
 
     if(!status.acknowledged)
-        throw 'Error: background not updated in database'
+        throw 'Error: Hat not updated in database'
 
     return await petCollection.findOne({userId: ObjectId(userId)})
 }

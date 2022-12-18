@@ -4,7 +4,7 @@ const petData = require('../data').pets
 const userData = require('../data').users
 const hangmanGameDate = require('../data').hangmanGameDate
 
-const {validateName, validateDesignNumber} = require('../helpers')
+const {validateName, validateDesignNumber, validateHatNumber} = require('../helpers')
 const xss = require('xss');
 
 // This middleware checks the authenticated user, and checks the status of the pet
@@ -257,8 +257,26 @@ router.route('/updatePetHappiness').post(async (req, res) => {
 
 // POST request to 'home/updatePetHat', called in an ajax request in home page when the hat is changed
 router.route('/updatePetHat').post(async (req, res) => {
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "hat", req.body.hat, true)
-    res.end()
+    if (!req.body.hat) {
+        // Not expected to trigger
+        return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No hat specified to switch to.'})
+    }
+    let hat = parseInt(xss(req.body.hat));
+    try {
+        hat = validateHatNumber(hat);
+    } catch (e) {
+        // Not expected to trigger
+        return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+    }
+    let pet;
+    try {
+        pet = await petData.updateHat(req.session.user.id, hat)
+    } catch (e) {
+        // No errors are expected here.
+        return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+    }
+    req.session.pet = pet
+    res.end();
 });
 
 // POST request to 'home/store/:id'
