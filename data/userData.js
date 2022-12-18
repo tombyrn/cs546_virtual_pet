@@ -1,9 +1,9 @@
 const users = require('../config/mongoCollections').users
-const pets = require('../config/mongoCollections').pets
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 const {ObjectId} = require('mongodb');
-const { validateName, validateEmail, validateUsername, validatePassword } = require('../helpers');
+const { validateIdString, validateName, validateEmail, validateUsername, validatePassword, 
+    validatePoints, validateHatNumber, validateBgNumber } = require('../helpers');
 
 // returns object of {insertedUser: boolean, userId: ObjectId}
 const createUser = async (
@@ -73,7 +73,35 @@ const createUser = async (
     return {insertedUser: true, userInfo: await userCollection.findOne({_id: status.insertedId})}
 };
 
-// returns object of {authenticatedUser: boolean, userId: ObjectId}
+const getUserById = async (
+    id
+) => {
+    id = validateIdString(id);
+    const userCollection = await users();
+    const user = await userCollection.findOne({_id: ObjectId(id)});
+    if (!user) {
+        throw 'Error: No user found with this ID.';
+    }
+    user._id = user._id.toString();
+    return user;
+}
+
+const getUserByUsername = async (
+    username, 
+    notFoundError
+) => {
+    username = validateUsername(username)
+    const userCollection = await users();
+    const user = await userCollection.findOne({username: username});
+    if (!user) {
+        throw notFoundError;
+    }
+    user._id = user._id.toString();
+    return user;
+}
+
+// returns object of user authenticated (boolean) and some user props, including id
+// and game features (points, background, hatsUnlocked, backgroundsUnlocked)
 const checkUser = async (
     username, password
 ) => {
@@ -93,42 +121,27 @@ const checkUser = async (
         throw errors
     }
 
-    // find user in database and return if it exists
-    const userCollection = await users()
-  
-    const user = await userCollection.findOne({username})
-  
-    if(!user)
-        throw 'Error: Either the username or password is invalid'
+    const userCollection = await users();
+    const user = await getUserByUsername(username, 'Error: Either the username or password is invalid');
   
     // make sure the password matches the hashed password in the database
     const match = await bcrypt.compare(password, user.hashedPassword)
     if(match)
         return {
             authenticatedUser: true, 
-            userInfo: await userCollection.findOne({_id: user._id})
+            userInfo: user
         }
     else
         throw 'Error: Either the username or password is invalid'
 };
 
 const addPoints = async(
-    userId, username, points
+    userId, points
 ) => {
-    if(typeof userId !== 'string' || userId.trim().length === 0){throw "Error: Must provide a valid id"}
-    userId = userId.trim();
-    if(!ObjectId.isValid(userId)){throw "Error: Invalid object id"}
+    userId = validateIdString(userId);
+    points = validatePoints(points);
 
-    username = validateUsername(username);
-
-    if(!points){throw "Error: Points must be provided."}
-    if(typeof points != "number" || !Number.isInteger(points)){throw "Error: Points must be an int number"}
-
-    const userCollection = await users()
-  
-    const user = await userCollection.findOne({username})
-  
-    if(!user){throw 'Error: User not found'}
+    const user = await getUserById(userId);
 
     points = user.points + points;
 
@@ -136,32 +149,25 @@ const addPoints = async(
         points: points
     }
 
+    const userCollection = await users();
     const updateInfo = await userCollection.updateOne({ _id: ObjectId(userId) },{ $set: update });
     if (!updateInfo.modifiedCount && !updateInfo.matchedCount) {throw 'Error: Could not update point info.'}
 
-    return await userCollection.findOne({username});
-
-    //can change what we return
+    return await getUserById(userId);
 }
 
 const updateUserInfo = async(
     userId, firstName, lastName, email, username, password
 ) => {
-    if(typeof userId !== 'string' || userId.trim().length === 0){throw "Error: Must provide a valid id"}
-    userId = userId.trim();
-    if(!ObjectId.isValid(userId)){throw "Error: Invalid object id"}
-
+    userId = validateIdString(userId);
     firstName = validateName(firstName, 'First')
     lastName = validateName(lastName, 'Last')
     email = validateEmail(email)
     username = validateUsername(username)
     password = validatePassword(password)
     
-    const userCollection = await users()
-  
-    const user = await userCollection.findOne({username})
-  
-    if(!user){throw 'Error: User not found'}
+    // Verifies that user exists
+    const user = await getUserById(userId);
 
     const update = {
         firstName: firstName,
@@ -185,32 +191,62 @@ const updateUserInfo = async(
 const giveItemToUser = async (
     userId, itemNo, hat
 )  =>  {
-    const userCollection = await users()
+    userId = validateIdString(userId)
+    if (typeof hat !== 'boolean'){
+        throw 'Error: hat input must be boolean.'
+    }
+    if (hat){
+        itemNo = validateHatNumber(itemNo)
+    } else {
+        itemNo = validateBgNumber(itemNo)
+    }
 
+    const user = await getUserById(userId);
+    if (hat){
+        if (user.hatsUnlocked.contains(itemNo)){
+            throw 'Error: User already has this hat.'
+        }
+    } else {
+        if (user.backgroundsUnlocked.contains(itemNo)){
+            throw 'Error: User already has this background.'
+        }
+    }
+
+    const userCollection = await users()
     let status
-    if(hat)
+    if (hat){
         status = await userCollection.updateOne({_id: ObjectId(userId)}, {$push: {hatsUnlocked: itemNo}})
-    else
+    } else {
         status = await userCollection.updateOne({_id: ObjectId(userId)}, {$push: {backgroundsUnlocked: itemNo}})
+    }
 
     if(!status.acknowledged)
         throw 'Error: item could not be given to user'
 
-
-    return await userCollection.findOne({_id: ObjectId(userId)})
+    return await getUserById(userId);
 }
 
 const updateBackground = async (
     userId, bgNo
 ) => {
-    const userCollection = await users()
+    userId = validateIdString(userId);
+    bgNo = validateBgNumber(bgNo);
 
+    const user = await getUserById(userId);
+    if (user.background === bgNo){
+        throw 'Error: User background is already set to input background number.'
+    }
+    if (!user.backgroundsUnlocked.contains(bgNo)){
+        throw 'Error: User does not have access to this background.'
+    }
+
+    const userCollection = await users()
     const status = await userCollection.updateOne({_id: ObjectId(userId)}, {$set: {background: bgNo}})
 
     if(!status.acknowledged)
-        throw 'Error: background not updated in database'
+        throw 'Error: Background not updated in database.'
 
-    return await userCollection.findOne({_id: ObjectId(userId)})
+    return await getUserById(userId);
 }
 
 
@@ -223,4 +259,13 @@ const updateBackground = async (
 //     const petCollection = await pets()
 // }
 
-module.exports = {createUser, checkUser, addPoints, updateUserInfo, giveItemToUser, updateBackground};
+module.exports = {
+    createUser, 
+    checkUser, 
+    getUserById, 
+    getUserByUsername, 
+    addPoints, 
+    updateUserInfo, 
+    giveItemToUser, 
+    updateBackground
+};

@@ -4,12 +4,33 @@ const petData = require('../data').pets
 const userData = require('../data').users
 const hangmanGameDate = require('../data').hangmanGameDate
 
-router.use('/', (req, res, next) => {
-    if (!req.session.user /*|| !req.session.pet*/) {
-        return res.status(403).redirect('/login');
-    } else {
-        next();
+const {validateName, validateDesignNumber} = require('../helpers')
+const xss = require('xss');
+
+// This middleware checks the authenticated user, and checks the status of the pet
+// (and updates the pet cookie accordingly). It also handles death reroutes when necessary. 
+// From this middleware, we can assume that req.session.user and req.session.pet exist in most cases. 
+router.use(async (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    } else if (req.url !== '/petDeath' && req.url !== '/createPet'){
+        // Need to check if pet has died or not (and update pet session cookie).
+        let pet = {};
+        try {
+            pet = await petData.getPetAttributes(req.session.user.id);
+        } catch (e) {
+            if (e === 'Error: No pet found with this user ID.') {
+                // Pet is dead, set pet cookie back to undefined. 
+                req.session.pet = undefined;
+                return res.redirect('/home/petDeath');
+            } else {
+                // Not expected to trigger
+                return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+            }
+        }
+        req.session.pet = pet;
     }
+    next();
 });
 
 // GET request to 'home'
@@ -38,12 +59,7 @@ router.route('/store').get((req, res) => {
 
 // POST request to 'home/profile'
 router.route('/profile').get( async (req, res) => {
-    
-    req.session.pet = await petData.getPetAttributes(req.session.user.id)
-    const pet = req.session.pet
-    // throw error if pet doesn't exist
-    if(!pet)
-        throw 'Error: no pet session cookie (petRoutes.js line45)'
+    const pet = req.session.pet;
 
     // presenting date on the screen
     pet.lastFed = new Date(Number(pet.lastFed)).toDateString();
@@ -70,30 +86,61 @@ router.route('/profile').get( async (req, res) => {
 
 // POST request to 'home/createPet' 
 router.route('/createPet').post( async (req, res) => {
-    // if no design or name is specified rerender the page
-    if(!req.body.design)
-        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: 'You need to choose a pet design'})
-    if(!req.body.name)
+    try {
+        // If user already has a pet, redirect back home
+        const pet = await petData.getPetAttributes(req.session.user.id);
+        return res.redirect('/home');
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.') {
+            // User doesn't have a pet, proceed with pet creation
+        } else {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+        }
+    }
+
+    // if no design or name is specified throw error
+    let design = xss(req.body.design);
+    let name = xss(req.body.name);
+    if(!design)
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: 'You need to choose a pet design'});
+    try {
+        design = validateDesignNumber(parseInt(design));
+    } catch (e) {
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', designError: e});
+    }
+    if(!name)
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
-
-    // create a new pet in the database
-    const pet = await petData.createPet(req.session.user.id, {name: req.body.name, design: req.body.design})
-
-    // add pet information to user database entry
-    const status = await petData.givePetToUser(req.session.user.id, pet.petId)
-    // set the pet session cookie
-    req.session.pet = await petData.getPetAttributes(req.session.user.id)
-
+    try {
+        name = validateName(name);
+    } catch (e) {
+        return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: e})
+    }
+    
+    const petId = await petData.createPet(req.session.user.id, {name: name, design: design})
+    const status = await petData.givePetToUser(req.session.user.id, petId)
     res.redirect('/home')
 })
 
-router.route('/createPet').get((req, res) => {
+router.route('/createPet').get(async (req, res) => {
+    try {
+        // If user already has a pet, redirect back home
+        const pet = await petData.getPetAttributes(req.session.user.id);
+        return res.redirect('/home');
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.') {
+            // User doesn't have a pet, proceed with pet creation
+        } else {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+        }
+    }
     return res.render('create', {title: 'Create a Pet', style:'/public/css/create.css'})
 })
 
 // GET request to 'home/play/simon'
 router.route('/play/simon').get((req, res) => {
-    res.render('simon', {title: "Simon", style: '/public/css/simon.css'})
+    return res.render('simon', {title: 'Simon', style: '/public/css/simon.css'})
 })
 
 // GET request to 'home/play/hangman'
@@ -104,11 +151,12 @@ router.route('/play/hangman').get((req, res) => {
     res.render('hangman', {
         title: "Hangman", 
         style:"/public/css/hangman.css", 
-        alphabets: 
-        hangmanGameDate.alphabets,lives: hangmanGameDate.lives,
+        alphabets: hangmanGameDate.alphabets,
+        lives: hangmanGameDate.lives,
         hintword: word
     })
 })
+
 // GET request to game studio
 router.route('/choose').get((req, res) => {
     res.render('choosegame', {title: 'Game Studio', style: '/public/css/chooseGame.css'});
@@ -125,9 +173,10 @@ router.route('/gethint').get((req, res) => {
 // GET request to 'home/getPetInfo', called in an ajax request in home page
 router.route('/getPetInfo').get(async (req, res) => {
     // get pet information from database
-    // pet = await petData.getPetAttributes(req.session.user.id);
+    pet = await petData.getPetAttributes(req.session.user.id);
     // calculate the total health of the pet
-    pet = await petData.calculateHealth(req.session.user.id)
+    // TODO: Health system? Keep or no? 
+    pet = await petData.calculateHealth(req.session.user.id);
 
     // if the pet doesn't exist it has died
     if(pet === null || pet.health === NaN){
@@ -147,41 +196,62 @@ router.route('/getPetInfo').get(async (req, res) => {
 
 // GET request to 'home/petDeath'
 router.route('/petDeath').get(async (req, res) => {
-    res.render('death', {title: ':(', style: '/public/css/death.css'})
+    try {
+        // Check if user's pet is still alive. If so, redirect back home. 
+        const pet = await petData.getPetAttributes(req.session.user.id);
+        return res.redirect('/home');
+    } catch (e) {
+        if (e === 'Error: No pet found with this user ID.') {
+            // Pet is confirmed dead
+            try {
+                await petData.removePetFromUser(req.session.user.id);
+                return res.render('death', {title: 'Your Pet Has Died', style: '/public/css/death.css'});
+            } catch (e){
+                // Not expected to trigger
+                return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `${e}`})
+            }
+        } else {
+            // Not expected to trigger
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: `Pet-Fetch Error: ${e}`})
+        }
+    }
 })
 
-// POST request to 'home/updatePetFood', called in an ajax request in home page when the pet is fed
 router.route('/updatePetFood').post(async (req, res) => {
-    // update the lastFed field in the database
-    await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
-    // update the food field and the pet session cookie
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
-    res.end();
-})
+    const pet = await petData.getPetAttributes(req.session.user.id);
 
-// POST request to 'home/updatePetWhenPlayedWith', called in an ajax request when the pet is played with
-router.route('/updatePetWhenPlayedWith').post(async (req, res) => {
-    // update the lastPlayed field in the database
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "lastPlayed", req.body.date, true)
+    const fedStatus = await petData.petAction(pet._id, 'feed');
 
-    // make sure happiness <= 100 and rest >= 0
-    const happiness =  req.session.pet.happiness+20 >= 100 ? 100 : req.session.pet.happiness+20
-    const rest = req.session.pet.rest-20 <= 0 ? 0 : req.session.pet.rest-20
+    // await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
+    // await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
 
-    // update the happiness field in the database
-    await petData.updatePetAttribute(req.session.user.id, "happiness", happiness, true)
-    // update the rest field and the pet session cookie
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "rest", rest, true)
+    // TODO: Update cookie?
+    // req.session.pet.lastFed = parseInt(req.body.date)
+    // req.session.pet.food = parseInt(req.body.foodLevel)
+    // console.log('finished')
     res.end();
 })
 
 
 // POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
 router.route('/updatePetCleanliness').post(async (req, res) => {
+    const pet = await petData.getPetAttributes(req.session.user.id);
+    const cleanStatus = await petData.petAction(pet._id, 'clean');
+
     // update the cleanliness field in the database
-    await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
-    
-    req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    // req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    res.end();
+});
+
+// POST request to 'home/updatePetHappiness', called in an ajax request in home page when the pet is played with
+router.route('/updatePetHappiness').post(async (req, res) => {
+    const pet = await petData.getPetAttributes(req.session.user.id);
+    const playStatus = await petData.petAction(pet._id, 'play');
+
+    // update the cleanliness field in the database
+    // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    // req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
     res.end();
 });
 
@@ -195,7 +265,7 @@ router.route('/updatePetHat').post(async (req, res) => {
 router.route('/store/:id').post((req, res) => {
     // set the attributes of the store item that was chosen
     let title, price, imageSrc
-    switch (req.params.id) {
+    switch (xss(req.params.id)) {
         case "hat1":
             title = "Hat 1"
             price = 40
@@ -233,16 +303,14 @@ router.route('/store/:id').post((req, res) => {
         default:
             break;
     }
-
-    // render store item page
-    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: req.params.id, style: '/public/css/storeItems.css'})
+    res.render('storeItem', {title, price, points: req.session.user.points, imageSrc, alt: title, name: xss(req.params.id), style: '/public/css/storeItems.css'})
 })
 
 // POST request to 'home/buyItem' 
 router.route('/buyItem').post((req, res) => {
-    // get item name and price from request
-    itemName = Object.keys(req.body)[0]
-    price = Object.values(req.body)[0]
+
+    let itemName = Object.keys(xss(req.body))[0]
+    let price = Object.values(xss(req.body))[0]
 
     // find the number of the item
     let itemNo
@@ -305,8 +373,9 @@ router.route('/buyItem').post((req, res) => {
 // POST request to 'home/purchaseItem'
 router.route('/purchaseItem').post(async (req, res) => {
     // get item name and price from request
-    const itemName = req.body.item
-    const price = parseInt(req.body.price)
+    //TODO: Add additional validation for name (string) and price (number)
+    const itemName = xss(req.body.item)
+    const price = parseInt(xss(req.body.price))
 
     // find the number of the item
     let itemNo
@@ -331,7 +400,7 @@ router.route('/purchaseItem').post(async (req, res) => {
 // POST request to 'home/equipItem'
 router.route('/equipItem').post(async (req, res) => {
     // get item name from request
-    const itemName = req.body.item
+    const itemName = xss(req.body.item)
     
     // find the number of the item
     let itemNo
@@ -344,8 +413,8 @@ router.route('/equipItem').post(async (req, res) => {
 
     // check if the item is a hat
     if(itemName.includes('Hat')){
-        req.session.pet.hat = itemNo // update pet session cookie
-        await petData.updateHat(req.session.user.id, itemNo) // update pet in the databse
+        req.session.pet.hat = itemNo
+        await petData.updateHat(req.session.user.id, itemNo)
     }
     // if not it is a background
     else{

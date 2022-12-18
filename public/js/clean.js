@@ -38,11 +38,11 @@ function setPet(){
 }
 
 function setSprite(){
-    if(pet.design === "1")
+    if(pet.design === 1)
         sprite = green_sprite
-    if(pet.design === "2")
+    if(pet.design === 2)
         sprite = blue_sprite
-    if(pet.design === "3")
+    if(pet.design === 3)
         sprite = purple_sprite
 
     if(pet.hat != 0)
@@ -62,7 +62,7 @@ async function updateStatus(){
 }
 
 async function clean(){
-    await ($.post('/home/updatePetCleanliness', {cleanLevel: 100, field: "cleanliness", isInt: true}))
+    await ($.post('/home/updatePetCleanliness'))
 }
 
 const sketch = (s) => {
@@ -90,6 +90,7 @@ const sketch = (s) => {
     if(s.isLooping() == false){
         s.fill(0, 102, 153);
         s.text('cleaned!', 300, 100);
+        clean();
     }
   };
   s.mouseClicked = () =>{
@@ -102,10 +103,10 @@ const sketch = (s) => {
   }
 };
 
-// pings server every 30 seconds to update the pet info
-setInterval(() => {
-    clean();    
-}, 10000)
+// // pings server every 30 seconds to update the pet info
+// setInterval(() => {
+//     clean();    
+// }, 10000)
 
 async function init(){
     await updateStatus();
