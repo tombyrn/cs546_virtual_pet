@@ -183,8 +183,9 @@ router.route('/addUserPoints').post(async (req, res) => {
             // Not expected to trigger
             return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: 'No point value specified to add to user.'})
         }
+        let user
         try {
-            const user = await userData.addPoints(req.session.user.id, points);
+            user = await userData.addPoints(req.session.user.id, points);
         } catch (e) {
             // Not expected to trigger
             return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
