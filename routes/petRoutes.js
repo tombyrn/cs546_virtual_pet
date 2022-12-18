@@ -118,12 +118,12 @@ router.route('/gethint').get((req, res) => {
 // GET request to 'home/getPetInfo', called in an ajax request in home page
 router.route('/getPetInfo').get(async (req, res) => {
     // get pet information from database
-    pet = await petData.getPetAttributes(req.session.user.id);
+    // pet = await petData.getPetAttributes(req.session.user.id);
     // calculate the total health of the pet
     pet = await petData.calculateHealth(req.session.user.id)
 
     // if the pet doesn't exist it has died
-    if(pet === null){
+    if(pet === null || pet.health === NaN){
         return res.redirect('/home/petDeath') // send the use to death screen
     }
 
