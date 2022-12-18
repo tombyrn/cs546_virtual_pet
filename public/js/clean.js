@@ -99,7 +99,7 @@ const sketch = (s) => {
   s.mouseDragged = () =>{
     s.erase(255, 100);
     s.noStroke();
-    s.circle(s.mouseX, s.mouseY, 25);
+    s.circle(s.mouseX, s.mouseY, 35);
   }
 };
 
