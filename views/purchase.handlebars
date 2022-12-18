@@ -1,25 +1,29 @@
-<h1>Purchase {{itemName}}</h1>
+<div class="container">
+    <h1>Purchase {{itemName}}</h1>
 
-<p>Owned by user: {{owned}}</p>
-<p>Can be purchased: {{canPurchase}}</p>
+    {{!-- <p>Owned by user: {{owned}}</p>
+    <p>Can be purchased: {{canPurchase}}</p> --}}
+    <div id="item">
+        {{#if owned}}
+            <p>You already own this item!</p>
+            <label>Do you want to equip this item?</label>
+            <button id="equip">Equip</button>
+        {{else}}
 
-{{#if owned}}
-    <p>You already own this item!</p>
-    <label>Do you want to equip this item?</label>
-    <button id="equip">Equip</button>
-{{else}}
+            {{#if canPurchase}}
+                <p>Confirm purchase of item for {{price}} points?</p>
+                <button id="confirm">Confirm</button>
+            {{else}}
+                <p>You don't have the funds to purchase this item :(</p>
+                <p>{{itemName}} costs {{price}} points</p>
+                <p>You have {{userPoints}} points</p>
+            {{/if}}
 
-    {{#if canPurchase}}
-        <p>Confirm purchase of item for {{price}}?</p>
-        <button id="confirm">Confirm</button>
-    {{else}}
-        <p>You don't have the funds to purchase this item :(</p>
-        <p>{{itemName}} costs {{price}} points</p>
-        <p>You have {{userPoints}} points</p>
-    {{/if}}
+        {{/if}}
+        <button id="back">Back</button>
+    </div>
 
-{{/if}}
-<button id="back">Back</button>
+</div>
 
 <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 <script>

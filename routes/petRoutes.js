@@ -274,7 +274,7 @@ router.route('/buyItem').post((req, res) => {
     }
 
     // render the purchase page
-    res.render('purchase', {itemName, price, owned, canPurchase,  userPoints: req.session.user.points})
+    res.render('purchase', {itemName, price, owned, canPurchase,  userPoints: req.session.user.points, style: '/public/css/storeItems.css'})
 })
 
 // POST request to 'home/purchaseItem'
