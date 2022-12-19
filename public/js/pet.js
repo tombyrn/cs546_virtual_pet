@@ -17,9 +17,13 @@ const bgSelector = document.getElementById('bgSelector')
 // How often (in ms) the page should update the pet's stat bars
 const statUpdates = 5 * 1000
 
-// What values the page will use to immediately update pet properties on feeding
+// What values the page will use to immediately update property bars on feeding
 // Ideally these should be consistent with the gameConstants values
 const feedRewards = [20, -10, 5, 0]
+
+// Rest costs. Ideally should be the same as gameConstants
+const clean_rest_cost = 5
+const play_rest_cost = 15
 
 const pen = document.getElementById('pen')
 
@@ -145,9 +149,11 @@ feedButton.onclick = async () => {
     if(restBar.value > 100) restBar.value = 100
     if(restBar.value < 0) restBar.value = 0
         
-    feedButton.disabled = false
+    if (pet.food < 100){
+        feedButton.disabled = false;
+    }
     // send new info to server
-    await ($.post('/home/updatePetFood', {date: Date.now(), foodLevel: foodBar.value, field: "lastFed", isInt: true}))
+    await ($.post('/home/updatePetFood'))
     await updateStatus()
 
 }
@@ -208,6 +214,22 @@ async function updateStatus(){
         cleanlinessBar.value = pet.cleanliness
         happinessBar.value = pet.happiness
         restBar.value = pet.rest
+
+        if (pet.food === 100){
+            feedButton.disabled = true;
+        } else {
+            feedButton.disabled = false;
+        }
+        if (pet.cleanliness === 100 || pet.rest < clean_rest_cost){
+            cleanButton.disabled = true;
+        } else {
+            cleanButton.disabled = false;
+        }
+        if (pet.rest < play_rest_cost){
+            playButton.disabled = true;
+        } else {
+            playButton.disabled = false;
+        }
     }))
 }
 

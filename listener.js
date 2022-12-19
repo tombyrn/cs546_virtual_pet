@@ -8,7 +8,6 @@ const constructorMethod = () => {
             await petData.petCollectionDecay();
         } catch (e) {
             // This is a strictly backend-error, so it is presented via the console.
-            //TODO: Route instead? 
             console.log(e);
         }
     }, DECAY_RATE);

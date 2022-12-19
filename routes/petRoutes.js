@@ -4,6 +4,8 @@ const petData = require('../data').pets
 const userData = require('../data').users
 const hangmanGameDate = require('../data').hangmanGameDate
 
+const gameConstants = require('../gameConstants');
+
 const {validateName, validateDesignNumber, validateHatNumber} = require('../helpers')
 const xss = require('xss');
 
@@ -43,11 +45,17 @@ router.route('/').get( async (req, res) => {
 
 // POST request to 'home/play'
 router.route('/play').get((req, res) => {
+    if (req.session.pet.rest + gameConstants.actionRewards.play.rest < 0){
+        res.redirect('/home');
+    }
     res.render('chooseGame', {title: 'Game Studio', style: '/public/css/chooseGame.css'})
 })
 
 // GET request to 'home/clean'
 router.route('/clean').get((req, res) => {
+    if (req.session.pet.cleanliness === 100){
+        res.redirect('/home');
+    }
     res.render('clean', {title: 'Clean', style: '/public/css/clean.css'})
 })
 
@@ -174,11 +182,12 @@ router.route('/gethint').get((req, res) => {
 router.route('/getPetInfo').get(async (req, res) => {
     // get pet information from database
     pet = await petData.getPetAttributes(req.session.user.id);
+
     // calculate the total health of the pet
-    // TODO: Health system? Keep or no? 
     pet = await petData.calculateHealth(req.session.user.id);
 
     // if the pet doesn't exist it has died
+    //TODO: Expose death functionality here
     if(pet === null || pet.health === NaN){
         return res.redirect('/home/petDeath') // send the use to death screen
     }
@@ -218,40 +227,60 @@ router.route('/petDeath').get(async (req, res) => {
 })
 
 router.route('/updatePetFood').post(async (req, res) => {
-    const pet = await petData.getPetAttributes(req.session.user.id);
-
-    const fedStatus = await petData.petAction(pet._id, 'feed');
-
-    // await petData.updatePetAttribute(req.session.user.id, "lastFed", req.body.date, true)
-    // await petData.updatePetAttribute(req.session.user.id, "food", req.body.foodLevel, true)
-
-    // TODO: Update cookie?
-    // req.session.pet.lastFed = parseInt(req.body.date)
-    // req.session.pet.food = parseInt(req.body.foodLevel)
-    // console.log('finished')
+    let pet
+    try {
+        pet = await petData.getPetAttributes(req.session.user.id);
+    } catch (e) {
+        return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+    }
+    try {
+        const fedStatus = await petData.petAction(pet._id, 'feed');
+    } catch (e) {
+        if (e !== 'Error: Cannot feed pet; pet food is already at 100.'){
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+        }
+        // Otherwise, this error can be gracefully ignored. (DB is not updated)
+    }
     res.end();
 })
 
 
 // POST request to 'home/updatePetCleanliness', called in an ajax request in home page when the pet is cleaned
 router.route('/updatePetCleanliness').post(async (req, res) => {
-    const pet = await petData.getPetAttributes(req.session.user.id);
-    const cleanStatus = await petData.petAction(pet._id, 'clean');
-
-    // update the cleanliness field in the database
-    // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
-    // req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    let pet
+    try {
+        pet = await petData.getPetAttributes(req.session.user.id);
+    } catch (e) {
+        return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+    }
+    try {
+        const cleanStatus = await petData.petAction(pet._id, 'clean');
+    } catch (e){
+        if (e !== 'Error: Cannot clean pet; pet cleanliness is already at 100.' 
+            || e !== 'Error: Not enough rest to do action clean.'){
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+        }
+        // Otherwise, this error can be gracefully ignored. (DB is not updated)
+    }
     res.end();
 });
 
 // POST request to 'home/updatePetHappiness', called in an ajax request in home page when the pet is played with
 router.route('/updatePetHappiness').post(async (req, res) => {
-    const pet = await petData.getPetAttributes(req.session.user.id);
-    const playStatus = await petData.petAction(pet._id, 'play');
-
-    // update the cleanliness field in the database
-    // await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
-    // req.session.pet = await petData.updatePetAttribute(req.session.user.id, "cleanliness", req.body.cleanLevel, true)
+    let pet
+    try {
+        pet = await petData.getPetAttributes(req.session.user.id);
+    } catch (e) {
+        return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+    }
+    try {
+        const playStatus = await petData.petAction(pet._id, 'play');
+    } catch (e) {
+        if (e !== 'Error: Not enough rest to do action play.'){
+            return res.status(500).render('error', {title: 'Internal Error', style: "/public/css/landing.css", error: e})
+        }
+        // Otherwise, this error can be gracefully ignored. (DB is not updated)
+    }
     res.end();
 });
 
