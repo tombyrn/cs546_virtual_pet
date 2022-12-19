@@ -201,28 +201,6 @@ const petAction = async (
     return status;
 }
 
-//TODO: This method scares me. Looks like it would be really easy to access and mess with 
-// random stuff with this...and validation seems really spooky here too. I think it's 
-// better to create more specialty methods depending on what we want to do. (And/or we can 
-// make a "full update" method, I think.)
-//TODO: Add validation here (if keeping this method).
-// Updates a single field in the MongoDB entry of the pet
-// field - database field you want to update
-// value - value you want to set the field to
-// isInt - wether or not the value passed in should be stored as an number
-// const updatePetAttribute = async (
-//     userId, field, value, isInt=false
-// ) => {
-//     const petCollection = await pets()
-//     if(isInt)
-//         value = parseInt(value)
-//     obj = {}
-//     obj[field] = value
-//     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: obj})
-//     await calculateHealth(userId)
-//     return await petCollection.findOne({userId: ObjectId(userId)})
-// }
-
 const petCollectionDecay = async (
 ) => {
     // Calculate decay values per property
