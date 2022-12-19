@@ -8,20 +8,37 @@ module.exports = {
         min_hat: 0,
         max_hat: 3
     },
+    //NOTE: These would be the real values we would use in our program
+    // decaySettings: {
+    //     // Number of days for each feature to go from 100 to zero (or rest from 0 to 100).
+    //     foodLifetime: 2,
+    //     cleanLifetime: 7,
+    //     happyLifetime: 14,
+    //     restLifetime: 0.5,
+
+    //     // Number of days a value can be kept at 0 before the pet dies. 
+    //     foodGrace: 1,
+    //     cleanGrace: 5,
+    //     happyGrace: 5,
+
+    //     // Interval (minutes) between decay calls.
+    //     decayInterval: 5
+    // },
     decaySettings: {
+        //NOTE: These are values used in demonstration/presentation
         // Number of days for each feature to go from 100 to zero (or rest from 0 to 100).
-        foodLifetime: 2,
-        cleanLifetime: 7,
-        happyLifetime: 14,
-        restLifetime: 0.5,
+        foodLifetime: 7 / (24 * 60),
+        cleanLifetime: 7 / (24 * 60),
+        happyLifetime: 7 / (24 * 60),
+        restLifetime: 0.5 / (24 * 60),
 
         // Number of days a value can be kept at 0 before the pet dies. 
-        foodGrace: 1,
-        cleanGrace: 5,
-        happyGrace: 5,
+        foodGrace: 2.5 / (24 * 60),
+        cleanGrace: 2.5 / (24 * 60),
+        happyGrace: 2.5 / (24 * 60),
 
         // Interval (minutes) between decay calls.
-        decayInterval: 5
+        decayInterval: 0.25
     },
     actionRewards: {
         feed: {

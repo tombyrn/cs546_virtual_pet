@@ -21,6 +21,9 @@ async function main() {
             design: 1
         }
     )
+    await users.addPoints(user1.userInfo._id.toString(), 2000)
+    await users.giveItemToUser(user1.userInfo._id.toString(), 1, true)
+    await users.giveItemToUser(user1.userInfo._id.toString(), 2, false)
     await pets.givePetToUser(user1.userInfo._id.toString(), pet1);
 
     const user2 = await users.createUser(
