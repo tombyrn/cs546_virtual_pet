@@ -16,6 +16,6 @@ Installation Guide:
     ```
 4. (optional) Seed the database in another terminal process
     ```
-    npm seed
+    npm run seed
     ```
 5. You can now login/register and create a pet!
