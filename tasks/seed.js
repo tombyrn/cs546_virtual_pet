@@ -15,7 +15,6 @@ async function main() {
         'Jortest123!'
     )
     const pet1 = await pets.createPet(
-        // TODO: Fix this up if you change user data. 
         user1.userInfo._id.toString(), 
         {
             name: 'Jorpet',

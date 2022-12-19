@@ -22,7 +22,6 @@ const createPet = async (
 
     const user = await userData.getUserById(userId);
     if (user.petId){
-        //TODO: Subject to change, depending on how death is handled.
         throw 'Error: User already has a pet.'
     }
 
@@ -116,7 +115,6 @@ const getPetById = async (
     return pet;
 }
 
-//TODO: Likely want to rename this. getPetByUserId sounds good. 
 const getPetAttributes = async (
     userId
 ) => {
@@ -212,18 +210,18 @@ const petAction = async (
 // field - database field you want to update
 // value - value you want to set the field to
 // isInt - wether or not the value passed in should be stored as an number
-const updatePetAttribute = async (
-    userId, field, value, isInt=false
-) => {
-    const petCollection = await pets()
-    if(isInt)
-        value = parseInt(value)
-    obj = {}
-    obj[field] = value
-    const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: obj})
-    await calculateHealth(userId)
-    return await petCollection.findOne({userId: ObjectId(userId)})
-}
+// const updatePetAttribute = async (
+//     userId, field, value, isInt=false
+// ) => {
+//     const petCollection = await pets()
+//     if(isInt)
+//         value = parseInt(value)
+//     obj = {}
+//     obj[field] = value
+//     const status = await petCollection.updateOne({userId: ObjectId(userId)}, {$set: obj})
+//     await calculateHealth(userId)
+//     return await petCollection.findOne({userId: ObjectId(userId)})
+// }
 
 const petCollectionDecay = async (
 ) => {
@@ -470,8 +468,7 @@ module.exports = {
     removePetFromUser, 
     getPetById,
     getPetAttributes, 
-    petAction, 
-    updatePetAttribute, 
+    petAction,  
     petCollectionDecay, 
     updateHat,
     calculateHealth

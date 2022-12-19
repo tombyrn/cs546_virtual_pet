@@ -70,7 +70,6 @@ const createUser = async (
     if (!status.acknowledged || !status.insertedId)
         throw 'Error: Could not add user to database'
 
-    // TODO: Text id isn't returned here...go to fix?
     return {insertedUser: true, userInfo: await userCollection.findOne({_id: status.insertedId})}
 };
 
