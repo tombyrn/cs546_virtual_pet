@@ -29,15 +29,15 @@
             </div>
             <p class="error" id="passwordError">{{errors.password}}</p>
 
-            {{#if otherError}}
-                <p class="error" id="otherError">{{otherError}}</p>
-            {{/if}}
-
             <div class="input-container">
                 <label for="emailInput">Email:</label>
                 <input type="text" name="emailInput" id="emailInput" placeholder="email@example.com" value={{inputs.emailInput}}>
             </div>
             <p class="error" id="emailError">{{errors.email}}</p>
+
+            {{#if otherError}}
+                <p class="error" id="otherError">{{otherError}}</p>
+            {{/if}}
 
             <div class="button-container">
                 <button type="submit">Enter</button>
@@ -49,3 +49,4 @@
     <a href="/login">Already have an account? Click here to log-in</a>
 
 </div>
+<script src="/public/js/register.js"></script>

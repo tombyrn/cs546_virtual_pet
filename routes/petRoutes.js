@@ -120,7 +120,7 @@ router.route('/createPet').post( async (req, res) => {
     if(!name)
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: 'You need to choose a pet name'})
     try {
-        name = validateName(name);
+        name = validateName(name, 'Pet');
     } catch (e) {
         return res.render('create', {title:'Create a pet', style:'/public/css/create.css', nameError: e})
     }
@@ -180,23 +180,14 @@ router.route('/gethint').get((req, res) => {
 
 // GET request to 'home/getPetInfo', called in an ajax request in home page
 router.route('/getPetInfo').get(async (req, res) => {
-    // get pet information from database
-    pet = await petData.getPetAttributes(req.session.user.id);
-
     // calculate the total health of the pet
-    pet = await petData.calculateHealth(req.session.user.id);
-
-    // if the pet doesn't exist it has died
-    //TODO: Expose death functionality here
-    if(pet === null || pet.health === NaN){
-        return res.redirect('/home/petDeath') // send the use to death screen
-    }
-
-    req.session.pet = pet
+    // Note: Health is a visual average measure with no bearing on pet life (unlike food, cleanliness, or happiness)
+    // Thus, calculating it for just this pet for frontend purposes should be sufficient
+    await petData.calculateHealth(req.session.user.id);
 
     // send information back to home page to be displayed
     res.send({
-        pet,
+        pet: req.session.pet,
         background: req.session.user.background,
         hatsUnlocked: req.session.user.hatsUnlocked,
         backgroundsUnlocked: req.session.user.backgroundsUnlocked

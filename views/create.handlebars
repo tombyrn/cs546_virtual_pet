@@ -2,7 +2,7 @@
 
     <h1> Choose a Pet </h1>
 
-    <form method="post" action="/home/createPet">
+    <form id="create-pet-form" method="post" action="/home/createPet">
 
         <div class="buttonContainer">
             <label for="design1">Green</label>
@@ -31,16 +31,4 @@
 
 </div>
 
-<script>
-    const input1 = document.getElementById('design1')
-    const input2 = document.getElementById('design2')
-    const input3 = document.getElementById('design3')
-
-    const img1 = document.getElementById('img1')
-    const img2 = document.getElementById('img2')
-    const img3 = document.getElementById('img3')
-
-    img1.onclick = () => {input1.checked = true}
-    img2.onclick = () => {input2.checked = true}
-    img3.onclick = () => {input3.checked = true}
-</script>
+<script src="/public/js/create.js"></script>
